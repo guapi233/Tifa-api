@@ -11,6 +11,8 @@ const { getRedisVal } = require("../utils/redis");
 const checkCaptcha = async (sid, text) => {
   let result = await getRedisVal(sid);
 
+  if (!result) return false;
+
   return result.toLowerCase() === text.toLowerCase();
 };
 
