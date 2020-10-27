@@ -23,6 +23,7 @@ router.post("/", async (ctx) => {
 
   // 2. 校验账号密码
   result = await UserModel.findOne({ usernumber });
+  const userInfo = result.toObject();
 
   if (!result || !bcrypt.compareSync(password, result.password)) {
     ctx.body = {
@@ -37,9 +38,16 @@ router.post("/", async (ctx) => {
     expiresIn: "1d",
   });
 
+  // 4. 过滤用户信息
+  const filterList = ["password"];
+  filterList.map((key) => {
+    delete userInfo[key];
+  });
+
   ctx.body = {
     isOk: 1,
     token,
+    data: userInfo,
   };
 });
 
