@@ -16,7 +16,7 @@ router.post("/", async (ctx) => {
   if (!result) {
     ctx.body = {
       isOk: 0,
-      data: "验证码校验失败",
+      data: "验证码过期或填写错误",
     };
     return;
   }
