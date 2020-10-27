@@ -5,6 +5,7 @@ const config = require("../config/index");
 mongoose.connect(config.DB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useCreateIndex: true,
 });
 
 // 监听
