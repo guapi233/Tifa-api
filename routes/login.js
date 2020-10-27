@@ -1,16 +1,44 @@
 const router = require("koa-router")();
 const jsonwebtoken = require("jsonwebtoken");
 const config = require("../config/index");
+const { checkCaptcha } = require("../utils/index");
+const { UserModel } = require("../model/User");
+const bcrypt = require("bcrypt");
 
 router.prefix("/login");
 
-router.get("/", async (ctx) => {
+router.post("/", async (ctx) => {
+  const { sid, usernumber, password, captcha } = ctx.request.body;
+
+  // 1. 校验验证码
+  let result = await checkCaptcha(sid, captcha);
+
+  if (!result) {
+    ctx.body = {
+      isOk: 0,
+      data: "验证码校验失败",
+    };
+    return;
+  }
+
+  // 2. 校验账号密码
+  result = await UserModel.findOne({ usernumber });
+
+  if (!result || !bcrypt.compareSync(password, result.password)) {
+    ctx.body = {
+      isOk: 0,
+      data: "账号或密码错误",
+    };
+    return;
+  }
+
+  // 3. 根据结构创建token 并返回结果
   let token = jsonwebtoken.sign({ _id: "Mob" }, config.JWT_SECRET, {
     expiresIn: "1d",
   });
 
   ctx.body = {
-    status: 200,
+    isOk: 1,
     token,
   };
 });
