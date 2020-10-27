@@ -7,8 +7,11 @@ const REDIS = {
   port: 6379,
 };
 
+const CAPTCHA_LIFE = 10 * 60;
+
 module.exports = {
   DB_URL,
   REDIS,
   JWT_SECRET,
+  CAPTCHA_LIFE,
 };
