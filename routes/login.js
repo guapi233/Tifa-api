@@ -11,6 +11,14 @@ router.post("/", async (ctx) => {
   const { sid, usernumber, password, captcha } = ctx.request.body;
 
   // 1. 校验验证码
+  if (!sid) {
+    ctx.body = {
+      isOk: 0,
+      data: "缺少必要的 sid 值",
+    };
+    return;
+  }
+
   let result = await checkCaptcha(sid, captcha);
 
   if (!result) {
