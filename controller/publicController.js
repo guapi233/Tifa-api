@@ -54,10 +54,12 @@ class PublicController {
     let { limit, skip } = ctx.query;
 
     // 1. 校验数据
-    if (!Number(limit) && Number(limit) !== 0) {
-      limit = 0;
+    if (!Number(limit)) {
+      limit = null;
+    } else {
+      limit = Number(limit);
     }
-    if (!Number(skip) && Number(skip) !== 0) {
+    if (!Number(skip)) {
       skip = 0;
     }
 
@@ -69,7 +71,7 @@ class PublicController {
     let result = await ArticleModel.find({}, filterStr)
       .sort({ created: -1 })
       .skip(Number(skip))
-      .limit(Number(limit));
+      .limit(limit);
 
     ctx.body = {
       isOk: 1,
