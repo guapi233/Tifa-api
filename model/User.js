@@ -54,7 +54,20 @@ const userIsExist = (requirement) => {
   });
 };
 
+/**
+ * 新建一个用户，并返回承载用户信息的对象
+ * @param {Object} userInfoObj 用户信息对象
+ * @returns {Object} 用户信息
+ */
+const newUser = (userInfoObj) => {
+  let newer = new UserModel(userInfoObj);
+  newer.save();
+
+  return newer.toObject();
+};
+
 module.exports = {
   UserModel,
   userIsExist,
+  newUser,
 };
