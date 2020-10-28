@@ -1,20 +1,12 @@
 const router = require("koa-router")();
 const publicController = require("../controller/publicController");
-const { userIsExist } = require("../model/User");
 
 router.prefix("/public");
 
+// 获取验证码
 router.get("/getCaptcha", publicController.getCaptcha);
 
-router.get("/exist", async (ctx) => {
-  let { usernumber } = ctx.query;
-
-  let result = await userIsExist({ usernumber });
-
-  ctx.body = {
-    isOk: Number(result),
-    data: result,
-  };
-});
+// 用户是否存存在
+router.get("/exist", publicController.userIsExist);
 
 module.exports = router;

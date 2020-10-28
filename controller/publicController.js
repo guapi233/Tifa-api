@@ -1,6 +1,7 @@
 const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
 const config = require("../config/index");
+const { userIsExist } = require("../model/User");
 
 class PublicController {
   // 获取验证码
@@ -32,6 +33,18 @@ class PublicController {
     ctx.body = {
       status: 200,
       data: newCaptcha.data,
+    };
+  }
+
+  // 用户是否存在
+  async userIsExist(ctx) {
+    let { usernumber } = ctx.query;
+
+    let result = await userIsExist({ usernumber });
+
+    ctx.body = {
+      isOk: Number(result),
+      data: result,
     };
   }
 }
