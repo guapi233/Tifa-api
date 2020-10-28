@@ -5,12 +5,18 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   usernumber: { type: String, index: { unique: true } },
   password: String,
-  name: String,
+  name: {
+    type: String,
+    default: `萌豚${Date.now()}号`,
+  },
   created: {
     type: Date,
     default: Date.now(),
   },
-  gender: Number,
+  gender: {
+    type: Number,
+    default: 2,
+  },
   roles: {
     type: Array,
     default: [0],
