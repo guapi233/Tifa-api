@@ -108,7 +108,7 @@ class LoginController {
     // 3. 创建用户
     const newUserInfo = newUser({
       usernumber,
-      password,
+      password: bcrypt.hashSync(password, 5),
     });
 
     // 4. 根据结构创建token 并返回结果
