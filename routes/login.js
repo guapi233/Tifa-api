@@ -43,7 +43,7 @@ router.post("/", async (ctx) => {
   }
 
   // 3. 根据结构创建token 并返回结果
-  let token = jsonwebtoken.sign({ _id: "Mob" }, config.JWT_SECRET, {
+  let token = jsonwebtoken.sign({ usernumber }, config.JWT_SECRET, {
     expiresIn: "1d",
   });
 
