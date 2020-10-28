@@ -1,7 +1,7 @@
 /**
  * 通用的工具方法
  */
-const { getRedisVal } = require("../utils/redis");
+const { getRedisVal, delRedisVal } = require("../utils/redis");
 
 /**
  * 核对验证码
@@ -10,6 +10,7 @@ const { getRedisVal } = require("../utils/redis");
  */
 const checkCaptcha = async (sid, text) => {
   let result = await getRedisVal(sid);
+  delRedisVal(sid);
 
   if (!result) return false;
 
