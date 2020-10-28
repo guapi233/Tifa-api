@@ -54,11 +54,7 @@ class PublicController {
     let { limit, skip } = ctx.query;
 
     // 1. 校验数据
-    if (!Number(limit)) {
-      limit = null;
-    } else {
-      limit = Number(limit);
-    }
+    limit = Number(limit) ? Number(limit) : null;
     if (!Number(skip)) {
       skip = 0;
     }
