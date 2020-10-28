@@ -51,14 +51,25 @@ class PublicController {
 
   // 获取文章列表
   async getArticleList(ctx) {
-    // const { limit, skip } = ctx.query;
+    let { limit, skip } = ctx.query;
 
-    // 1. 筛选要读取的数据
+    // 1. 校验数据
+    if (!Number(limit) && Number(limit) !== 0) {
+      limit = 0;
+    }
+    if (!Number(skip) && Number(skip) !== 0) {
+      skip = 0;
+    }
+
+    // 2. 筛选要读取的数据
     const filterList = ["-content"];
     const filterStr = filterList.join(" ");
 
-    // 2. 读取数据
-    let result = await ArticleModel.find({}, filterStr);
+    // 3. 读取数据
+    let result = await ArticleModel.find({}, filterStr)
+      .sort({ created: -1 })
+      .skip(Number(skip))
+      .limit(Number(limit));
 
     ctx.body = {
       isOk: 1,
