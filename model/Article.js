@@ -29,7 +29,7 @@ const ArticleSchema = new Schema({
     default: Date.now(),
   },
   title: String,
-  id: {
+  articleId: {
     type: Number,
     index: {
       unique: true,
