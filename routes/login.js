@@ -2,11 +2,12 @@ const router = require("koa-router")();
 const jsonwebtoken = require("jsonwebtoken");
 const config = require("../config/index");
 const { checkCaptcha } = require("../utils/index");
-const { UserModel } = require("../model/User");
+const { UserModel, userIsExist, newUser } = require("../model/User");
 const bcrypt = require("bcrypt");
 
 router.prefix("/login");
 
+// 登录
 router.post("/", async (ctx) => {
   const { sid, usernumber, password, captcha } = ctx.request.body;
 
@@ -56,6 +57,77 @@ router.post("/", async (ctx) => {
     isOk: 1,
     token,
     data: userInfo,
+  };
+});
+
+// 注册
+router.post("/reg", async (ctx) => {
+  const { sid, usernumber, password, captcha } = ctx.request.body;
+
+  // 1. 校验验证码 以及 账号密码是否合法
+  if (!sid) {
+    ctx.body = {
+      isOk: 0,
+      data: "缺少必要的 sid 值",
+    };
+    return;
+  }
+
+  let result = await checkCaptcha(sid, captcha);
+
+  if (!result) {
+    ctx.body = {
+      isOk: 0,
+      data: "验证码过期或填写错误",
+    };
+    return;
+  }
+
+  if (
+    usernumber.length < 6 ||
+    usernumber.length > 20 ||
+    password.length < 6 ||
+    password.length > 20
+  ) {
+    ctx.body = {
+      isOk: 0,
+      data: "账号或密码的长度不符合要求",
+    };
+    return;
+  }
+
+  // 2. 校验账号是否存在
+  result = await userIsExist({ usernumber });
+
+  if (result) {
+    ctx.body = {
+      isOk: 0,
+      data: "账号已经存在",
+    };
+    return;
+  }
+
+  // 3. 创建用户
+  const newUserInfo = newUser({
+    usernumber,
+    password,
+  });
+
+  // 4. 根据结构创建token 并返回结果
+  let token = jsonwebtoken.sign({ usernumber }, config.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+
+  // 5. 过滤用户信息
+  const filterList = ["password"];
+  filterList.map((key) => {
+    delete newUserInfo[key];
+  });
+
+  ctx.body = {
+    isOk: 1,
+    token,
+    data: newUserInfo,
   };
 });
 
