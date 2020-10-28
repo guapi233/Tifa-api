@@ -2,6 +2,7 @@ const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
 const config = require("../config/index");
 const { userIsExist } = require("../model/User");
+const { ArticleModel } = require("../model/Article");
 
 class PublicController {
   // 获取验证码
@@ -44,6 +45,23 @@ class PublicController {
 
     ctx.body = {
       isOk: Number(result),
+      data: result,
+    };
+  }
+
+  // 获取文章列表
+  async getArticleList(ctx) {
+    // const { limit, skip } = ctx.query;
+
+    // 1. 筛选要读取的数据
+    const filterList = ["-content"];
+    const filterStr = filterList.join(" ");
+
+    // 2. 读取数据
+    let result = await ArticleModel.find({}, filterStr);
+
+    ctx.body = {
+      isOk: 1,
       data: result,
     };
   }

@@ -9,4 +9,7 @@ router.get("/getCaptcha", publicController.getCaptcha);
 // 用户是否存存在
 router.get("/exist", publicController.userIsExist);
 
+// 获取文章列表
+router.get("/getArticleList", publicController.getArticleList);
+
 module.exports = router;
