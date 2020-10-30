@@ -11,7 +11,7 @@ class PublicController {
 
     if (!sid) {
       ctx.body = {
-        status: 401,
+        isOk: 0,
         data: "create fail：没有收到必须的 sid 值。",
       };
 
@@ -32,7 +32,7 @@ class PublicController {
     setRedisVal(sid, newCaptcha.text, config.CAPTCHA_LIFE);
 
     ctx.body = {
-      status: 200,
+      isOk: 1,
       data: newCaptcha.data,
     };
   }
