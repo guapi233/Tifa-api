@@ -53,8 +53,10 @@ class LoginController {
 
     ctx.body = {
       isOk: 1,
-      token,
-      data: userInfo,
+      data: {
+        userInfo,
+        token,
+      },
     };
   }
 
@@ -106,7 +108,7 @@ class LoginController {
     }
 
     // 3. 创建用户
-    const newUserInfo = newUser({
+    const userInfo = newUser({
       usernumber,
       password: bcrypt.hashSync(password, 5),
     });
@@ -119,13 +121,15 @@ class LoginController {
     // 5. 过滤用户信息
     const filterList = ["password"];
     filterList.map((key) => {
-      delete newUserInfo[key];
+      delete userInfo[key];
     });
 
     ctx.body = {
       isOk: 1,
-      token,
-      data: newUserInfo,
+      data: {
+        userInfo,
+        token,
+      },
     };
   }
 }
