@@ -12,4 +12,7 @@ router.get("/exist", publicController.userIsExist);
 // 获取文章列表
 router.get("/getArticleList", publicController.getArticleList);
 
+// 获取用户公开信息
+router.get("/getUserInfo", publicController.getUserInfo);
+
 module.exports = router;
