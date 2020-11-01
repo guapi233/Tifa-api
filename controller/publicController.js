@@ -1,7 +1,7 @@
 const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
 const config = require("../config/index");
-const { userIsExist } = require("../model/User");
+const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 
 class PublicController {
@@ -44,7 +44,7 @@ class PublicController {
     let result = await userIsExist({ usernumber });
 
     ctx.body = {
-      isOk: Number(result),
+      isOk: 1,
       data: result,
     };
   }
@@ -72,6 +72,41 @@ class PublicController {
     ctx.body = {
       isOk: 1,
       data: result,
+    };
+  }
+
+  // 获取用户公开信息
+  async getUserInfo(ctx) {
+    const { usernumber } = ctx.query;
+    if (!usernumber) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必须的用户账号",
+      };
+      return;
+    }
+
+    // 查找 & 过滤用户信息
+    const filterList = ["password", "_id"];
+
+    let userInfo = await UserModel.findOne({ usernumber });
+    if (!userInfo) {
+      ctx.body = {
+        isOk: 0,
+        data: "用户不存在",
+      };
+      return;
+    }
+
+    userInfo = userInfo.toObject();
+
+    filterList.forEach((key) => {
+      delete userInfo[key];
+    });
+
+    ctx.body = {
+      isOk: 1,
+      data: userInfo,
     };
   }
 }
