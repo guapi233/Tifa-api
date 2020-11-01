@@ -34,6 +34,22 @@ const UserSchema = new Schema({
     type: Number,
     default: 1,
   },
+  summary: {
+    type: String,
+    default: "",
+  },
+  title: {
+    type: Array,
+    default: [0],
+  },
+  follow: {
+    type: Number,
+    default: 0,
+  },
+  followed: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const UserModel = mongoose.model("users", UserSchema);
