@@ -50,6 +50,14 @@ const UserSchema = new Schema({
     type: Number,
     default: 0,
   },
+  occupation: {
+    type: String,
+    default: "",
+  },
+  interest: {
+    type: String,
+    default: "",
+  },
 });
 
 const UserModel = mongoose.model("users", UserSchema);
