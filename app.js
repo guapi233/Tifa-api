@@ -4,8 +4,10 @@ const JWT = require("koa-jwt");
 const cors = require("koa2-cors");
 const json = require("koa-json");
 const onerror = require("koa-onerror");
-const bodyparser = require("koa-bodyparser");
+// const bodyparser = require("koa-bodyparser");
+const body = require("koa-body");
 const logger = require("koa-logger");
+const path = require("path");
 
 const index = require("./routes/index");
 const users = require("./routes/users");
@@ -24,14 +26,25 @@ const jwt = JWT({ secret: require("./config/index").JWT_SECRET }).unless({
 app.use(require("./utils/errorHandle"));
 
 // middlewares
+app.use(cors());
 app.use(
-  bodyparser({
-    enableTypes: ["json", "form", "text"],
+  body({
+    multipart: true, // 支持文件上传
+    // encoding: "gzip",
+    formidable: {
+      uploadDir: path.join(__dirname, "public/img/"), // 设置文件上传目录
+      keepExtensions: true, // 保持文件的后缀
+      maxFieldsSize: 5 * 1024 * 1024, // 文件上传大小
+      onFileBegin: (name, file) => {
+        // 文件上传前的设置
+        // console.log(`name: ${name}`);
+        // console.log(file);
+      },
+    },
   })
 );
 app.use(json());
 app.use(logger());
-app.use(cors());
 app.use(require("koa-static")(__dirname + "/public"));
 app.use(jwt);
 
