@@ -49,6 +49,37 @@ class UserController {
       };
     }
   }
+
+  // 上传头像
+  async uploadPic(ctx) {
+    let { path } = ctx.request.files.file;
+    const { usernumber } = ctx.query;
+    // 1. 解析图片路径
+    path = path.split("\\");
+    path = `/${path[path.length - 2]}/${path[path.length - 1]}`;
+    console.log(path);
+
+    // 2. 替换用户数据
+    let res = await UserModel.updateOne(
+      { usernumber },
+      {
+        pic: path,
+      }
+    );
+
+    // 3.根据结果返回数据
+    if (res.nModified) {
+      ctx.body = {
+        isOk: 1,
+        data: "上传成功",
+      };
+    } else {
+      ctx.body = {
+        isOk: 0,
+        data: "上传失败",
+      };
+    }
+  }
 }
 
 module.exports = new UserController();
