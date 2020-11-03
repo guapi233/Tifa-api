@@ -2,6 +2,7 @@
  * 通用的工具方法
  */
 const { getRedisVal, delRedisVal } = require("../utils/redis");
+const { v4: uuidv4 } = require("uuid");
 
 /**
  * 核对验证码
@@ -17,6 +18,14 @@ const checkCaptcha = async (sid, text) => {
   return result.toLowerCase() === text.toLowerCase();
 };
 
+/**
+ * 生成UUID
+ */
+const getUuid = () => {
+  return uuidv4();
+};
+
 module.exports = {
   checkCaptcha,
+  getUuid,
 };
