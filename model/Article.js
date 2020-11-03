@@ -1,4 +1,5 @@
 const mongoose = require("../utils/db");
+const { getUuid } = require("../utils/index");
 
 const Schema = mongoose.Schema;
 
@@ -34,6 +35,7 @@ const ArticleSchema = new Schema({
     index: {
       unique: true,
     },
+    default: getUuid(),
   },
 });
 
