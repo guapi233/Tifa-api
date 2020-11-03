@@ -75,6 +75,28 @@ class PublicController {
     };
   }
 
+  // 获取文章详情
+  async getArticleDetail(ctx) {
+    // 1. 校验数据
+    const { articleId } = ctx.query;
+
+    if (!articleId) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要的文章ID",
+      };
+      return;
+    }
+
+    // 2. 读取数据
+    let result = await ArticleModel.find({ articleId });
+
+    ctx.body = {
+      isOk: 1,
+      data: result,
+    };
+  }
+
   // 获取用户公开信息
   async getUserInfo(ctx) {
     const { usernumber } = ctx.query;
