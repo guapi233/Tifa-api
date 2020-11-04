@@ -64,7 +64,7 @@ class PublicController {
     const filterStr = filterList.join(" ");
 
     // 3. 读取数据
-    let result = await ArticleModel.find({}, filterStr)
+    let result = await ArticleModel.find({ status: 1 }, filterStr)
       .sort({ created: -1 })
       .skip(Number(skip))
       .limit(limit);
@@ -89,7 +89,7 @@ class PublicController {
     }
 
     // 2. 读取数据
-    let result = await ArticleModel.findOne({ articleId });
+    let result = await ArticleModel.findOne({ articleId, status: 1 });
 
     if (!result) {
       ctx.body = {

@@ -29,8 +29,8 @@ class LoginController {
     }
 
     // 2. 校验账号密码
-    result = await UserModel.findOne({ usernumber });
-    const userInfo = result.toObject();
+    result = await UserModel.findOne({ usernumber, status: 1 });
+    const userInfo = result ? result.toObject() : null;
 
     if (!result || !bcrypt.compareSync(password, result.password)) {
       ctx.body = {
