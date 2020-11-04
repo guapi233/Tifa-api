@@ -41,6 +41,10 @@ const ArticleSchema = new Schema({
     type: Array,
     default: [],
   },
+  status: {
+    type: Number,
+    default: 1,
+  },
 });
 
 const ArticleModel = mongoose.model("articles", ArticleSchema);
