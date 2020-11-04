@@ -4,10 +4,10 @@ const { getUuid } = require("../utils/index");
 const Schema = mongoose.Schema;
 
 const ArticleSchema = new Schema({
-  author: Object,
+  author: String,
   banner: {
     type: String,
-    default: "/img/pic.png",
+    default: "/img/a00bc7e1-e6f7-0528-ecb9-451e0ec0c9c5.jpg",
   },
   commentCount: {
     type: Number,
@@ -36,6 +36,10 @@ const ArticleSchema = new Schema({
       unique: true,
     },
     default: getUuid(),
+  },
+  tags: {
+    type: Array,
+    default: [],
   },
 });
 
