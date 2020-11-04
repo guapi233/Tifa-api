@@ -91,15 +91,34 @@ class PublicController {
     // 2. 读取数据
     let result = await ArticleModel.findOne({ articleId });
 
-    if (result) {
-      ctx.body = {
-        isOk: 1,
-        data: result,
-      };
-    } else {
+    if (!result) {
       ctx.body = {
         isOk: 0,
         data: "您所访问文章不存在或已删除",
+      };
+      return;
+    }
+    result = result.toObject();
+
+    // 3. 查询作者信息
+    // 需要查询的用户数据
+    let filterStr = "usernumber pic name summary";
+    let userInfo = await UserModel.findOne(
+      { usernumber: result.author },
+      filterStr
+    );
+
+    if (!userInfo) {
+      ctx.body = {
+        isOk: 0,
+        data: "您所访问文章不存在或已删除",
+      };
+    } else {
+      userInfo = userInfo.toObject();
+      result.author = userInfo;
+      ctx.body = {
+        isOk: 1,
+        data: result,
       };
     }
   }
