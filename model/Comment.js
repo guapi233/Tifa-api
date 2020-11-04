@@ -12,6 +12,7 @@ const CommentSchema = new Schema({
     },
   },
   targetId: String,
+  replyId: String,
   author: String,
   created: {
     type: Date,
