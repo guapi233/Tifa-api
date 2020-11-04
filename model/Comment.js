@@ -1,5 +1,5 @@
 const mongoose = require("../utils/db");
-const { getUuid } = requre("../utils/index.js");
+const { getUuid } = require("../utils/index.js");
 
 const Schema = mongoose.Schema;
 
