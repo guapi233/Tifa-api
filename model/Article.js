@@ -31,7 +31,7 @@ const ArticleSchema = new Schema({
   },
   title: String,
   articleId: {
-    type: Number,
+    type: String,
     index: {
       unique: true,
     },
