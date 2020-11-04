@@ -89,12 +89,19 @@ class PublicController {
     }
 
     // 2. 读取数据
-    let result = await ArticleModel.find({ articleId });
+    let result = await ArticleModel.findOne({ articleId });
 
-    ctx.body = {
-      isOk: 1,
-      data: result,
-    };
+    if (result) {
+      ctx.body = {
+        isOk: 1,
+        data: result,
+      };
+    } else {
+      ctx.body = {
+        isOk: 0,
+        data: "您所访问文章不存在或已删除",
+      };
+    }
   }
 
   // 获取用户公开信息
