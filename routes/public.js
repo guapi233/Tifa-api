@@ -18,4 +18,7 @@ router.get("/getArticleDetail", publicController.getArticleDetail);
 // 获取用户公开信息
 router.get("/getUserInfo", publicController.getUserInfo);
 
+// 获取文章评论列表
+router.get("/getCommentList", publicController.getCommentList);
+
 module.exports = router;

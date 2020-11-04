@@ -3,6 +3,7 @@ const { setRedisVal } = require("../utils/redis");
 const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
+const { CommentModel } = require("../model/Comment");
 
 class PublicController {
   // 获取验证码
@@ -170,6 +171,23 @@ class PublicController {
     ctx.body = {
       isOk: 1,
       data: userInfo,
+    };
+  }
+
+  // 获取文章评论列表
+  async getCommentList(ctx) {
+    let { targetId, skip, limit, sort } = ctx.query;
+
+    !sort && (sort = "created");
+
+    let result = await CommentModel.find({ targetId, status: 1 })
+      .sort({ [sort]: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    ctx.body = {
+      isOk: 1,
+      data: result,
     };
   }
 }
