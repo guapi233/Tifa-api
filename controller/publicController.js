@@ -176,14 +176,68 @@ class PublicController {
 
   // 获取文章评论列表
   async getCommentList(ctx) {
+    /**
+     * 此段逻辑需要多次连接数据库，可通过hash进行代价转移
+     */
     let { targetId, skip, limit, sort } = ctx.query;
 
     !sort && (sort = "created");
 
+    // 1. 筛选出属于当前文章的评论
     let result = await CommentModel.find({ targetId, status: 1 })
       .sort({ [sort]: -1 })
       .skip(skip)
       .limit(limit);
+
+    // 2. 找出这些一级评论下的二级评论、以及这些评论的作者信息
+    result = await Promise.all(
+      result.map(async (comment) => {
+        comment = comment.toObject();
+
+        // 2.1 一级评论的作者信息
+        comment.author = await UserModel.findOne(
+          {
+            usernumber: comment.authorId,
+            status: 1,
+          },
+          "usernumber name pic title"
+        );
+
+        // 2.2 二级评论及二级评论的作者信息
+        // 2.2.1 一级评论中的二级评论
+        comment.children = await CommentModel.find({
+          targetId: comment.commentId,
+          status: 1,
+        }).sort({ created: 1 });
+
+        comment.children = await Promise.all(
+          // 2.2.2 二级评论的作者信息
+          comment.children.map(async (childComment) => {
+            childComment = childComment.toObject();
+            childComment.author = await UserModel.findOne(
+              {
+                usernumber: childComment.authorId,
+                status: 1,
+              },
+              "usernumber name pic title"
+            );
+
+            // 2.2.3 二级评论的回复人信息
+            childComment.reply = await UserModel.findOne(
+              {
+                usernumber: childComment.replyId,
+                status: 1,
+              },
+              "usernumber name pic title"
+            );
+
+            return childComment;
+          })
+        );
+
+        return comment;
+      })
+    );
 
     ctx.body = {
       isOk: 1,
