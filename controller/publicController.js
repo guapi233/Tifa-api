@@ -69,6 +69,21 @@ class PublicController {
       .skip(Number(skip))
       .limit(limit);
 
+    // 4. 查找文章对应的作者信息
+    result = await Promise.all(
+      result.map(async (article) => {
+        article = article.toObject();
+
+        let filterStr = "usernumber pic name summary";
+        article.author = await UserModel.findOne(
+          { usernumber: article.author },
+          filterStr
+        );
+
+        return article;
+      })
+    );
+
     ctx.body = {
       isOk: 1,
       data: result,
