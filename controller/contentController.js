@@ -6,8 +6,15 @@ const { UserModel } = require("../model/User");
 class ContentController {
   // 添加评论信息
   async addComment(ctx) {
-    // type 为当前评论的所属， targetType 为当前评论对象的所属
-    let { targetId, replyId, content, type, targetType } = ctx.request.body;
+    // type 为当前评论的所属， targetType 为当前评论对象的所属，secondLevelCommentId 如果评论对象同位二级评论需要将其Id传过来
+    let {
+      targetId,
+      replyId,
+      content,
+      type,
+      targetType,
+      secondLevelCommentId,
+    } = ctx.request.body;
 
     // 1. 校验信息
     if (!targetId || !replyId || !content || typeof type === "undefined") {
@@ -68,6 +75,32 @@ class ContentController {
           data: "评论的对象不存在或已删除",
         };
         return;
+      }
+
+      // 3.1 如果评论的对象为2级评论，需要顺道将该2级评论的 commentCount++;
+      if (secondLevelCommentId) {
+        let secondComment = await CommentModel.findOne({
+          commentId: secondLevelCommentId,
+          status: 1,
+        });
+
+        // 3.1.1 判断是否为 2级评论
+        let isSecondComment = await CommentModel.findOne(
+          { commentId: secondComment.targetId, status: 1 },
+          "_id"
+        );
+
+        if (!isSecondComment) {
+          ctx.body = {
+            isOk: 0,
+            data: "无效的二级评论信息",
+          };
+          return;
+        }
+
+        // 3.1.2 为当前 2级评论的 commentCount++，并保存
+        secondComment.commentCount++;
+        secondComment.save();
       }
     }
 
