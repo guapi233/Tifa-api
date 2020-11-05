@@ -3,6 +3,8 @@
  */
 const { getRedisVal, delRedisVal } = require("../utils/redis");
 const { v4: uuidv4 } = require("uuid");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../config/index");
 
 /**
  * 核对验证码
@@ -25,7 +27,20 @@ const getUuid = () => {
   return uuidv4();
 };
 
+/**
+ * 获取 JWT payload
+ */
+const getJwtPaload = (token) => {
+  const payload = jwt.verify(token.split(" ")[1], JWT_SECRET);
+
+  // 判断是否过期
+  if (payload.exp * 1000 < Date.now()) return false;
+
+  return payload;
+};
+
 module.exports = {
   checkCaptcha,
   getUuid,
+  getJwtPaload,
 };
