@@ -1,4 +1,6 @@
+const jwt = require("koa-jwt");
 const { UserModel } = require("../model/User");
+const { getJwtPaload } = require("../utils/index");
 
 class UserController {
   // 编辑资料
@@ -53,13 +55,22 @@ class UserController {
   // 上传头像
   async uploadPic(ctx) {
     let { path } = ctx.request.files.file;
-    const { usernumber } = ctx.query;
-    // 1. 解析图片路径
+    // 1. 解析 jwt 获取token
+    let payload = await getJwtPaload(ctx.header["authorization"]);
+    if (!payload) {
+      ctx.body = {
+        isOk: 0,
+        data: "登录已过期，请您重新登录",
+      };
+      return;
+    }
+    const { usernumber } = payload;
+
+    // 2. 解析图片路径
     path = path.split("\\");
     path = `/${path[path.length - 2]}/${path[path.length - 1]}`;
-    console.log(path);
 
-    // 2. 替换用户数据
+    // 3. 替换用户数据
     let res = await UserModel.updateOne(
       { usernumber },
       {
@@ -67,7 +78,7 @@ class UserController {
       }
     );
 
-    // 3.根据结果返回数据
+    // 4.根据结果返回数据
     if (res.nModified) {
       ctx.body = {
         isOk: 1,

@@ -83,10 +83,13 @@ const userIsExist = (requirement) => {
  * @param {Object} userInfoObj 用户信息对象
  * @returns {Object} 用户信息
  */
-const newUser = (userInfoObj) => {
+const newUser = async (userInfoObj) => {
   let newer = new UserModel(userInfoObj);
-  newer.save();
+  let res = await newer.save();
 
+  if (!res) {
+    return false;
+  }
   return newer.toObject();
 };
 
