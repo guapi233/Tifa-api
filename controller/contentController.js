@@ -1,6 +1,7 @@
 const { newComment, CommentModel } = require("../model/Comment");
 const { ArticleModel } = require("../model/Article");
 const { getJwtPaload } = require("../utils/index");
+const { UserModel } = require("../model/User");
 
 class ContentController {
   // 添加评论信息
@@ -96,7 +97,13 @@ class ContentController {
       return;
     }
 
-    // 6. 评论对象的评论数量 +1
+    // 6. 解析 replyId ，添加回复人信息
+    newer.reply = await UserModel.findOne(
+      { usernumber: newer.replyId },
+      "usernumber name pic title"
+    );
+
+    // 7. 评论对象的评论数量 +1
     if (type === 1) {
       targetOfTarget.commentCount += 1;
       targetOfTarget.save();
