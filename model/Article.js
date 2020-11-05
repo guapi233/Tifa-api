@@ -23,11 +23,9 @@ const ArticleSchema = new Schema({
   },
   created: {
     type: Date,
-    default: Date.now(),
   },
   modified: {
     type: Date,
-    default: Date.now(),
   },
   title: String,
   articleId: {
@@ -35,7 +33,6 @@ const ArticleSchema = new Schema({
     index: {
       unique: true,
     },
-    default: getUuid(),
   },
   tags: {
     type: Array,
@@ -49,6 +46,27 @@ const ArticleSchema = new Schema({
 
 const ArticleModel = mongoose.model("articles", ArticleSchema);
 
+/**
+ * 新建一篇文章，并返回承载文章信息的对象
+ * @param {Object} articleObj 文章信息对象
+ * @returns {Object} 文章信息
+ */
+const newArticle = async (articleObj) => {
+  let newer = new ArticleModel({
+    ...articleObj,
+    articleId: getUuid(),
+    created: Date.now(),
+    modified: Date.now(),
+  });
+  let res = await newer.save();
+
+  if (!res) {
+    return false;
+  }
+  return newer.toObject();
+};
+
 module.exports = {
   ArticleModel,
+  newArticle,
 };

@@ -1,12 +1,12 @@
 const mongoose = require("../utils/db");
 const { getUuid } = require("../utils/index.js");
+const { UserModel } = require("./User");
 
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
   commentId: {
     type: String,
-    default: getUuid(),
     index: {
       unique: true,
     },
@@ -16,7 +16,6 @@ const CommentSchema = new Schema({
   authorId: String,
   created: {
     type: Date,
-    default: Date.now(),
   },
   content: String,
   likeCount: {
@@ -40,14 +39,24 @@ const CommentModel = mongoose.model("comments", CommentSchema);
  * @param {object} commentObj 评论信息
  */
 const newComment = async (commentObj) => {
-  let newer = new CommentModel(commentObj);
+  let newer = new CommentModel({
+    ...commentObj,
+    commentId: getUuid(),
+    created: Date.now(),
+  });
   let res = await newer.save();
 
   if (!res) {
     return false;
   }
 
-  return newer.toObject();
+  newer = newer.toObject();
+  newer.author = await UserModel.findOne(
+    { usernumber: newer.authorId },
+    "usernumber name pic title"
+  );
+
+  return newer;
 };
 
 module.exports = {

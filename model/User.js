@@ -11,7 +11,6 @@ const UserSchema = new Schema({
   },
   created: {
     type: Date,
-    default: Date.now(),
   },
   gender: {
     type: Number,
@@ -84,7 +83,10 @@ const userIsExist = (requirement) => {
  * @returns {Object} 用户信息
  */
 const newUser = async (userInfoObj) => {
-  let newer = new UserModel(userInfoObj);
+  let newer = new UserModel({
+    ...userInfoObj,
+    created: Date.now(),
+  });
   let res = await newer.save();
 
   if (!res) {
