@@ -188,7 +188,7 @@ class PublicController {
     // 1. 筛选出属于当前文章的评论
     let result = await CommentModel.find({ targetId, status: 1 })
       .sort({ [sort]: -1 })
-      .skip(skip)
+      .skip(skip * limit)
       .limit(limit);
 
     // 2. 找出这些一级评论下的二级评论、以及这些评论的作者信息
