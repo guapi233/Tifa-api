@@ -182,6 +182,8 @@ class PublicController {
     let { targetId, skip, limit, sort } = ctx.query;
 
     !sort && (sort = "created");
+    skip = Number(skip) || 0;
+    limit = Number(limit) || 0;
 
     // 1. 筛选出属于当前文章的评论
     let result = await CommentModel.find({ targetId, status: 1 })
