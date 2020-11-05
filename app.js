@@ -13,6 +13,7 @@ const index = require("./routes/index");
 const users = require("./routes/users");
 const login = require("./routes/login");
 const public = require("./routes/public");
+const content = require("./routes/content");
 
 // error handler
 onerror(app);
@@ -61,6 +62,7 @@ app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
 app.use(login.routes(), login.allowedMethods());
 app.use(public.routes(), public.allowedMethods());
+app.use(content.routes(), content.allowedMethods());
 
 // error-handling
 app.on("error", (err, ctx) => {
