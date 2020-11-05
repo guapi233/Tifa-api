@@ -112,6 +112,12 @@ class LoginController {
       usernumber,
       password: bcrypt.hashSync(password, 5),
     });
+    if (!userInfo) {
+      ctx.body = {
+        isOk: 0,
+        data: "注册失败",
+      };
+    }
 
     // 4. 根据结构创建token 并返回结果
     let token = jsonwebtoken.sign({ usernumber }, config.JWT_SECRET, {
