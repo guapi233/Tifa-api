@@ -50,11 +50,14 @@ const newComment = async (commentObj) => {
     return false;
   }
 
+  // 查询评论作者信息
   newer = newer.toObject();
   newer.author = await UserModel.findOne(
     { usernumber: newer.authorId },
     "usernumber name pic title"
   );
+
+  // 当前文章/回复的评论数量 + 1 （由前端来做）
 
   return newer;
 };
