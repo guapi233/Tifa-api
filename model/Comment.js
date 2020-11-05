@@ -35,6 +35,22 @@ const CommentSchema = new Schema({
 
 const CommentModel = mongoose.model("comments", CommentSchema);
 
+/**
+ * 添加评论（异步）
+ * @param {object} commentObj 评论信息
+ */
+const newComment = async (commentObj) => {
+  let newer = new CommentModel(commentObj);
+  let res = await newer.save();
+
+  if (!res) {
+    return false;
+  }
+
+  return newer.toObject();
+};
+
 module.exports = {
   CommentModel,
+  newComment,
 };
