@@ -37,12 +37,10 @@ class UserController {
       }
     );
 
-    console.log(res);
-
     if (res) {
       ctx.body = {
         isOk: 1,
-        data: true,
+        data: "更新成功",
       };
     } else {
       ctx.body = {
