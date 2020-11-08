@@ -9,4 +9,7 @@ router.post("/addComment", contentController.addComment);
 // 添加点赞
 router.get("/addLike", contentController.addLike);
 
+// 添加收藏
+router.get("/addCollection", contentController.addCollection);
+
 module.exports = router;

@@ -1,8 +1,13 @@
 const { newComment, CommentModel } = require("../model/Comment");
 const { ArticleModel } = require("../model/Article");
-const { LikeModel, newLike, delLike, isLiked } = require("../model/Like");
+const { newLike, delLike, isLiked } = require("../model/Like");
 const { getJwtPaload } = require("../utils/index");
 const { UserModel } = require("../model/User");
+const {
+  newCollection,
+  isCollected,
+  delCollection,
+} = require("../model/Collection");
 
 class ContentController {
   // 添加评论信息
@@ -218,6 +223,49 @@ class ContentController {
     ctx.body = {
       isOk,
       data,
+    };
+  }
+
+  // 添加收藏记录
+  async addCollection(ctx) {
+    // 1. 获取参数 & 校验信息
+    const { targetId } = ctx.query;
+    const { usernumber } = getJwtPaload(ctx.header["authorization"]);
+    if (!targetId || !usernumber) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要的信息",
+      };
+      return;
+    }
+
+    // 2. 判断是否已经收藏
+    const collected = await isCollected(targetId, usernumber);
+    if (collected) {
+      await delCollection(targetId);
+      ctx.body = {
+        isOk: 1,
+        data: "取消收藏",
+      };
+      return;
+    }
+
+    // 3. 新建收藏记录
+    const newer = await newCollection({
+      targetId,
+      authorId: usernumber,
+    });
+    if (!newer) {
+      ctx.body = {
+        isOk: 0,
+        data: "收藏失败",
+      };
+      return;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: newer,
     };
   }
 }
