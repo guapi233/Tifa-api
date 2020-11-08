@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { getUuid } = require("../utils/index");
 
 const Schema = mongoose.Schema;
 
@@ -18,11 +19,10 @@ const CollectionModel = mongoose.model("collections", CollectionSchema);
 
 // 新增收藏
 const newCollection = async (collectionObj) => {
-  const { targetId, authorId } = collectionObj;
-
   let newer = new CollectionModel({
-    targetId,
-    authorId,
+    ...collectionObj,
+    collectionId: getUuid(),
+    created: Date.now(),
   });
 
   let res = await newer.save();
