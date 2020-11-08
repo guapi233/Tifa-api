@@ -154,9 +154,23 @@ class ContentController {
 
   // 添加点赞记录
   async addLike(ctx) {
-    // 1. 获取参数
-    const { targetId } = ctx.query;
+    // 1. 获取参数 (type: 点赞目标类型，用于更新目标的点赞数量, 0为文章，1为评论)
+    const { targetId, type } = ctx.query;
     const { usernumber } = getJwtPaload(ctx.header["authorization"]);
+    if (!targetId || !usernumber || typeof type === "undefined") {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要信息",
+      };
+      return;
+    }
+
+    let models = [
+      [ArticleModel, "articleId"],
+      [CommentModel, "commentId"],
+    ];
+    let model = models[type][0],
+      idName = models[type][1];
 
     // 2. 判断 用户是否点赞
     let res = await isLiked(targetId, usernumber);
@@ -164,11 +178,31 @@ class ContentController {
     // 3. 如果已经点过赞，则删除点赞记录，否则添加一条点赞信息
     if (res) {
       res = await delLike(targetId, usernumber);
+
+      // 点赞目标 likeCount--
+      await model.updateOne(
+        { [idName]: targetId },
+        {
+          $inc: {
+            likeCount: -1,
+          },
+        }
+      );
     } else {
       res = await newLike({
         targetId,
         authorId: usernumber,
       });
+
+      // 点赞目标 likeCount++
+      await model.updateOne(
+        { [idName]: targetId },
+        {
+          $inc: {
+            likeCount: 1,
+          },
+        }
+      );
     }
 
     // 4. 按照 操作3 返回对应的格式
