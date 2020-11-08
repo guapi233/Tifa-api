@@ -5,7 +5,7 @@ const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
 const { getLikes, isLiked } = require("../model/Like");
-const { isCollected } = require("../model/Collection");
+const { isCollected, getCollections } = require("../model/Collection");
 
 class PublicController {
   // 获取验证码
@@ -303,6 +303,37 @@ class PublicController {
           "usernumber name pic"
         );
         return likeItem;
+      })
+    );
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 获取收藏列表
+  async getCollectionList(ctx) {
+    const { usernumber } = ctx.query;
+    if (!usernumber) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要的信息",
+      };
+      return;
+    }
+
+    let res = await getCollections(usernumber);
+
+    res = await Promise.all(
+      res.map(async (collectionItem) => {
+        collectionItem = collectionItem.toObject();
+
+        collectionItem.article = await ArticleModel.findOne(
+          { articleId: collectionItem.targetId },
+          "articleId title banner"
+        );
+        return collectionItem;
       })
     );
 

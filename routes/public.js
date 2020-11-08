@@ -24,4 +24,7 @@ router.get("/getCommentList", publicController.getCommentList);
 // 获取文章点赞列表
 router.get("/getLikeList", publicController.getLikeList);
 
+// 获取用户收藏列表
+router.get("/getCollectionList", publicController.getCollectionList);
+
 module.exports = router;
