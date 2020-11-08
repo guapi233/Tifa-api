@@ -54,9 +54,14 @@ const delLike = async (targetId, authorId) => {
 /**
  * 获取点赞列表
  * @param {String} targetId 目标Id
+ * @param {Number} limit 数量
  */
-const getLikes = async (targetId) => {
-  let res = await LikeModel.find({ targetId });
+const getLikes = async (targetId, limit = 3) => {
+  limit = Number(limit) || 3;
+
+  let res = await LikeModel.find({ targetId })
+    .limit(limit)
+    .sort({ created: -1 });
 
   return res;
 };
