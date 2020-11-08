@@ -101,6 +101,12 @@ class UserController {
         data: "缺少必要的信息",
       };
       return;
+    } else if (targetId === usernumber) {
+      ctx.body = {
+        isOk: 0,
+        data: "自己不能关注自己哦",
+      };
+      return;
     }
 
     // 2. 判断是否已经关注
