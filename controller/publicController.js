@@ -4,6 +4,7 @@ const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
+const { getLikes } = require("../model/Like");
 const { isLiked } = require("../model/Like");
 
 class PublicController {
@@ -269,6 +270,37 @@ class PublicController {
     ctx.body = {
       isOk: 1,
       data: result,
+    };
+  }
+
+  // 获取文章点赞列表
+  async getLikeList(ctx) {
+    const { articleId, limit = 3 } = ctx.query;
+    if (!articleId) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要的信息",
+      };
+      return;
+    }
+
+    let res = await getLikes(articleId, limit);
+
+    res = await Promise.all(
+      res.map(async (likeItem) => {
+        likeItem = likeItem.toObject();
+
+        likeItem.author = await UserModel.findOne(
+          { usernumber: likeItem.authorId },
+          "usernumber name pic"
+        );
+        return likeItem;
+      })
+    );
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
     };
   }
 }

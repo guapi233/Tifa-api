@@ -21,4 +21,7 @@ router.get("/getUserInfo", publicController.getUserInfo);
 // 获取文章评论列表
 router.get("/getCommentList", publicController.getCommentList);
 
+// 获取文章点赞列表
+router.get("/getLikeList", publicController.getLikeList);
+
 module.exports = router;
