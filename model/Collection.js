@@ -44,8 +44,8 @@ const isCollected = async (targetId, authorId) => {
 };
 
 // 删除一条收藏记录（取消收藏）
-const delCollection = async (targetId) => {
-  let res = await CollectionModel.deleteOne({ targetId });
+const delCollection = async (targetId, authorId) => {
+  let res = await CollectionModel.deleteOne({ targetId, authorId });
 
   if (!res) {
     return false;

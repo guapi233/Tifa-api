@@ -242,7 +242,7 @@ class ContentController {
     // 2. 判断是否已经收藏
     const collected = await isCollected(targetId, usernumber);
     if (collected) {
-      await delCollection(targetId);
+      await delCollection(targetId, usernumber);
       ctx.body = {
         isOk: 1,
         data: "取消收藏",
