@@ -1,9 +1,11 @@
 const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
+const { getJwtPaload } = require("../utils/index");
 const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
+const { isLiked } = require("../model/Like");
 
 class PublicController {
   // 获取验证码
@@ -94,7 +96,7 @@ class PublicController {
   // 获取文章详情
   async getArticleDetail(ctx) {
     // 1. 校验数据
-    const { articleId } = ctx.query;
+    const { articleId, usernumber } = ctx.query;
 
     if (!articleId) {
       ctx.body = {
@@ -129,14 +131,23 @@ class PublicController {
         isOk: 0,
         data: "您所访问文章不存在或已删除",
       };
-    } else {
-      userInfo = userInfo.toObject();
-      result.author = userInfo;
-      ctx.body = {
-        isOk: 1,
-        data: result,
-      };
+      return;
     }
+    userInfo = userInfo.toObject();
+    result.author = userInfo;
+
+    // 4. 查询当前用户是否对当前文章点过赞
+    if (!usernumber) {
+      result.isLiked = 0;
+    } else {
+      let res = await isLiked(result.articleId, usernumber);
+      result.isLiked = res ? 1 : 0;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: result,
+    };
   }
 
   // 获取用户公开信息
