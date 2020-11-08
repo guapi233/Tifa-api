@@ -1,6 +1,6 @@
-const jwt = require("koa-jwt");
 const { UserModel } = require("../model/User");
 const { getJwtPaload } = require("../utils/index");
+const { isFollowed, delFollow, newFollow } = require("../model/Follow");
 
 class UserController {
   // 编辑资料
@@ -88,6 +88,49 @@ class UserController {
         data: "上传失败",
       };
     }
+  }
+
+  // 添加关注
+  async addFollow(ctx) {
+    // 1. 获取参数 & 校验信息
+    const { targetId } = ctx.query;
+    const { usernumber } = getJwtPaload(ctx.header["authorization"]);
+    if (!targetId || !usernumber) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要的信息",
+      };
+      return;
+    }
+
+    // 2. 判断是否已经关注
+    const followed = await isFollowed(targetId, usernumber);
+    if (followed) {
+      await delFollow(targetId, usernumber);
+      ctx.body = {
+        isOk: 1,
+        data: "取消关注",
+      };
+      return;
+    }
+
+    // 3. 新建收藏记录
+    const newer = await newFollow({
+      targetId,
+      authorId: usernumber,
+    });
+    if (!newer) {
+      ctx.body = {
+        isOk: 0,
+        data: "关注失败",
+      };
+      return;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: newer,
+    };
   }
 }
 

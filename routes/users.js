@@ -7,4 +7,6 @@ router.post("/edit", userController.edit);
 
 router.post("/uploadPic", userController.uploadPic);
 
+router.get("/addFollow", userController.addFollow);
+
 module.exports = router;
