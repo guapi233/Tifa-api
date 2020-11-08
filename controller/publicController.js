@@ -4,8 +4,8 @@ const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
-const { getLikes } = require("../model/Like");
-const { isLiked } = require("../model/Like");
+const { getLikes, isLiked } = require("../model/Like");
+const { isCollected } = require("../model/Collection");
 
 class PublicController {
   // 获取验证码
@@ -142,6 +142,14 @@ class PublicController {
     } else {
       let res = await isLiked(result.articleId, usernumber);
       result.isLiked = res ? 1 : 0;
+    }
+
+    // 5. 是否收藏当前文章
+    if (!usernumber) {
+      result.isCollected = 0;
+    } else {
+      let res = await isCollected(result.articleId, usernumber);
+      result.isCollected = res ? 1 : 0;
     }
 
     ctx.body = {
