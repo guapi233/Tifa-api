@@ -6,7 +6,11 @@ const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
 const { getLikes, isLiked } = require("../model/Like");
 const { isCollected, getCollections } = require("../model/Collection");
-const { getFollowList, getFollowedList } = require("../model/Follow");
+const {
+  getFollowList,
+  getFollowedList,
+  isFollowed,
+} = require("../model/Follow");
 
 class PublicController {
   // 获取验证码
@@ -137,12 +141,16 @@ class PublicController {
     userInfo = userInfo.toObject();
     result.author = userInfo;
 
-    // 4. 查询当前用户是否对当前文章点过赞
+    // 4. 是否关注该用户 & 是否点过赞
     if (!usernumber) {
       result.isLiked = 0;
+      result.author.isFollowed = 0;
     } else {
-      let res = await isLiked(result.articleId, usernumber);
-      result.isLiked = res ? 1 : 0;
+      const liked = await isLiked(result.articleId, usernumber);
+      result.isLiked = Number(liked);
+
+      const followed = await isFollowed(result.author.usernumber, usernumber);
+      result.author.isFollowed = Number(followed);
     }
 
     // 5. 是否收藏当前文章
