@@ -1,6 +1,5 @@
 const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
-const { getJwtPaload } = require("../utils/index");
 const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
@@ -190,7 +189,7 @@ class PublicController {
     /**
      * 此段逻辑需要多次连接数据库，可通过hash进行代价转移
      */
-    let { targetId, skip, limit, sort } = ctx.query;
+    let { targetId, skip, limit, sort, usernumber } = ctx.query;
 
     !sort && (sort = "created");
     skip = Number(skip) || 0;
@@ -207,7 +206,7 @@ class PublicController {
       result.map(async (comment) => {
         comment = comment.toObject();
 
-        // 2.1 一级评论的作者信息
+        // 2.1 一级评论的作者信息 & 判断登录用户是否对该评论点过赞
         comment.author = await UserModel.findOne(
           {
             usernumber: comment.authorId,
@@ -215,6 +214,13 @@ class PublicController {
           },
           "usernumber name pic title"
         );
+
+        if (!usernumber) {
+          comment.isLiked = 0;
+        } else {
+          let liked = await isLiked(comment.commentId, usernumber);
+          comment.isLiked = Number(liked);
+        }
 
         // 2.2 二级评论及二级评论的作者信息
         // 2.2.1 一级评论中的二级评论
@@ -243,6 +249,14 @@ class PublicController {
               },
               "usernumber name pic title"
             );
+
+            // 2.2.3 判断当前登录用户是否对二级评论点过赞
+            if (!usernumber) {
+              childComment.isLiked = 0;
+            } else {
+              let liked = await isLiked(childComment.commentId, usernumber);
+              childComment.isLiked = Number(liked);
+            }
 
             return childComment;
           })
