@@ -275,8 +275,8 @@ class PublicController {
 
   // 获取文章点赞列表
   async getLikeList(ctx) {
-    const { articleId, limit = 3 } = ctx.query;
-    if (!articleId) {
+    const { targetId, limit = 3 } = ctx.query;
+    if (!targetId) {
       ctx.body = {
         isOk: 0,
         data: "缺少必要的信息",
@@ -284,7 +284,7 @@ class PublicController {
       return;
     }
 
-    let res = await getLikes(articleId, limit);
+    let res = await getLikes(targetId, limit);
 
     res = await Promise.all(
       res.map(async (likeItem) => {
