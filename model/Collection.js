@@ -53,9 +53,17 @@ const delCollection = async (targetId) => {
   return true;
 };
 
+// 获取收藏列表
+const getCollections = async (authorId) => {
+  let res = await CollectionModel.find({ authorId });
+
+  return res;
+};
+
 module.exports = {
   CollectionModel,
   newCollection,
   isCollected,
   delCollection,
+  getCollections,
 };
