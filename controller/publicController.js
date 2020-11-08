@@ -6,6 +6,7 @@ const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
 const { getLikes, isLiked } = require("../model/Like");
 const { isCollected, getCollections } = require("../model/Collection");
+const { getFollowList, getFollowedList } = require("../model/Follow");
 
 class PublicController {
   // 获取验证码
@@ -336,6 +337,30 @@ class PublicController {
         return collectionItem;
       })
     );
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 获取用户关注的列表
+  async getFollowList(ctx) {
+    const { authorId } = ctx.query;
+
+    let res = await getFollowList(authorId);
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 获取关注用户的列表
+  async getFollowedList(ctx) {
+    const { targetId } = ctx.query;
+
+    let res = await getFollowedList(targetId);
 
     ctx.body = {
       isOk: 1,

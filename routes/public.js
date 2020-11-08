@@ -27,4 +27,10 @@ router.get("/getLikeList", publicController.getLikeList);
 // 获取用户收藏列表
 router.get("/getCollectionList", publicController.getCollectionList);
 
+// 获取用户关注的列表
+router.get("/getFollowList", publicController.getFollowList);
+
+// 获取用户收藏列表
+router.get("/getFollowedList", publicController.getFollowedList);
+
 module.exports = router;
