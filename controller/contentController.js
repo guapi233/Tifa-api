@@ -1,5 +1,6 @@
 const { newComment, CommentModel } = require("../model/Comment");
 const { ArticleModel } = require("../model/Article");
+const { LikeModel, newLike, delLike, isLiked } = require("../model/Like");
 const { getJwtPaload } = require("../utils/index");
 const { UserModel } = require("../model/User");
 
@@ -148,6 +149,41 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: newer,
+    };
+  }
+
+  // 添加点赞记录
+  async addLike(ctx) {
+    // 1. 获取参数
+    const { targetId } = ctx.query;
+    const { usernumber } = getJwtPaload(ctx.header["authorization"]);
+
+    // 2. 判断 用户是否点赞
+    let res = await isLiked(targetId, usernumber);
+
+    // 3. 如果已经点过赞，则删除点赞记录，否则添加一条点赞信息
+    if (res) {
+      res = await delLike(targetId, usernumber);
+    } else {
+      res = await newLike({
+        targetId,
+        authorId: usernumber,
+      });
+    }
+
+    // 4. 按照 操作3 返回对应的格式
+    let data = null,
+      isOk = 1;
+    if (typeof res === "boolean") {
+      data = res ? "取消点赞成功" : "取消点赞失败";
+      isOk = res ? 1 : 0;
+    } else {
+      data = res;
+    }
+
+    ctx.body = {
+      isOk,
+      data,
     };
   }
 }
