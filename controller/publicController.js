@@ -63,9 +63,7 @@ class PublicController {
 
     // 1. 校验数据
     limit = Number(limit) ? Number(limit) : null;
-    if (!Number(skip)) {
-      skip = 0;
-    }
+    skip = Number(skip) ? Number(skip) : 0;
 
     // 2. 筛选要读取的数据
     const filterList = ["-content"];
@@ -74,7 +72,7 @@ class PublicController {
     // 3. 读取数据
     let result = await ArticleModel.find({ status: 1 }, filterStr)
       .sort({ created: -1 })
-      .skip(Number(skip))
+      .skip(skip * limit)
       .limit(limit);
 
     // 4. 查找文章对应的作者信息
