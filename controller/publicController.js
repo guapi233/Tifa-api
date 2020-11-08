@@ -169,7 +169,7 @@ class PublicController {
 
   // 获取用户公开信息
   async getUserInfo(ctx) {
-    const { usernumber } = ctx.query;
+    const { usernumber, self } = ctx.query;
     if (!usernumber) {
       ctx.body = {
         isOk: 0,
@@ -195,6 +195,10 @@ class PublicController {
     filterList.forEach((key) => {
       delete userInfo[key];
     });
+
+    // 查询 是否关注此用户
+    let followed = await isFollowed(usernumber, self);
+    userInfo.isFollowed = Number(followed);
 
     ctx.body = {
       isOk: 1,
