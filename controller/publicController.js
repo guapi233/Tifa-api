@@ -213,19 +213,23 @@ class PublicController {
       status: 1,
     });
     userInfo.articleCount = articles.length;
-    // 4.3 获赞数量（文章总获赞数 + 评论总获赞数）
-    let likeCount = 0;
+    // 4.3 获赞数量（文章总获赞数 + 评论总获赞数） & 文章阅读量
+    let likeCount = 0,
+      viewCount = 0;
     const comments = await CommentModel.find({
       authorId: userInfo.usernumber,
       status: 1,
     });
     articles.forEach((article) => {
       likeCount += article.likeCount;
+      viewCount += article.viewCount;
     });
     comments.forEach((comment) => {
       likeCount += comment.likeCount;
     });
+
     userInfo.likeCount = likeCount;
+    userInfo.viewCount = viewCount;
 
     ctx.body = {
       isOk: 1,
