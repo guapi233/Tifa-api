@@ -113,6 +113,23 @@ class UserController {
     const followed = await isFollowed(targetId, usernumber);
     if (followed) {
       await delFollow(targetId, usernumber);
+      // 关注数量--，目标用户粉丝数量--
+      await UserModel.updateOne(
+        { usernumber },
+        {
+          $inc: {
+            follow: -1,
+          },
+        }
+      );
+      await UserModel.updateOne(
+        { usernumber: targetId },
+        {
+          $inc: {
+            followed: -1,
+          },
+        }
+      );
       ctx.body = {
         isOk: 1,
         data: "取消关注",
@@ -132,6 +149,24 @@ class UserController {
       };
       return;
     }
+
+    // 4. 关注数量++，目标用户粉丝数量++
+    await UserModel.updateOne(
+      { usernumber },
+      {
+        $inc: {
+          follow: 1,
+        },
+      }
+    );
+    await UserModel.updateOne(
+      { usernumber: targetId },
+      {
+        $inc: {
+          followed: 1,
+        },
+      }
+    );
 
     ctx.body = {
       isOk: 1,
