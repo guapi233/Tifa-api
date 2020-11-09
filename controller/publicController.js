@@ -4,7 +4,7 @@ const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
-const { getLikes, isLiked } = require("../model/Like");
+const { getLikes, isLiked, LikeModel } = require("../model/Like");
 const { isCollected, getCollections } = require("../model/Collection");
 const {
   getFollowList,
@@ -167,6 +167,7 @@ class PublicController {
 
   // 获取用户公开信息
   async getUserInfo(ctx) {
+    // 1. 校验信息
     const { usernumber, self } = ctx.query;
     if (!usernumber) {
       ctx.body = {
@@ -176,7 +177,7 @@ class PublicController {
       return;
     }
 
-    // 查找 & 过滤用户信息
+    // 2. 查找 & 过滤用户信息
     const filterList = ["password", "_id"];
 
     let userInfo = await UserModel.findOne({ usernumber });
@@ -194,9 +195,33 @@ class PublicController {
       delete userInfo[key];
     });
 
-    // 查询 是否关注此用户
+    // 3. 查询 是否关注此用户
     let followed = await isFollowed(usernumber, self);
     userInfo.isFollowed = Number(followed);
+
+    // 4. 添加汇总信息（加入天数、创建文章数量、文章阅读总数量、收到的点赞量）
+    // 4.1 加入时间
+    const difference = Date.now() - userInfo.created.getTime();
+    userInfo.joined = Math.floor(difference / (1000 * 60 * 60 * 24));
+    // 4.2 文章数量
+    const articles = await ArticleModel.find({
+      author: userInfo.usernumber,
+      status: 1,
+    });
+    userInfo.articleCount = articles.length;
+    // 4.3 获赞数量（文章总获赞数 + 评论总获赞数）
+    let likeCount = 0;
+    const comments = await CommentModel.find({
+      authorId: userInfo.usernumber,
+      status: 1,
+    });
+    articles.forEach((article) => {
+      likeCount += article.likeCount;
+    });
+    comments.forEach((comment) => {
+      likeCount += comment.likeCount;
+    });
+    userInfo.likeCount = likeCount;
 
     ctx.body = {
       isOk: 1,
