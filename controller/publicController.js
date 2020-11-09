@@ -356,9 +356,40 @@ class PublicController {
 
   // 获取用户关注的列表
   async getFollowList(ctx) {
-    const { authorId } = ctx.query;
+    let { authorId, usernumber, limit, skip } = ctx.query;
 
-    let res = await getFollowList(authorId);
+    limit = Number(limit) || 9;
+    skip = Number(skip) || 0;
+
+    let res = await getFollowList(authorId, limit, skip);
+
+    // 返回目标用户信息
+    for (let i = 0; i < res.length; i++) {
+      res[i] = res[i].toObject();
+      let item = res[i];
+
+      item.author = await UserModel.findOne(
+        { usernumber: item.targetId },
+        "usernumber name pic title summary follow followed"
+      );
+      // 查询用户发布的文章数量
+      if (item.author) {
+        item.author = item.author.toObject();
+        item.author.articleCount = await ArticleModel.find({
+          author: item.author.usernumber,
+        }).count();
+      }
+    }
+
+    // 判断当前查看这些信息的用户是否关注这些用户
+    if (usernumber) {
+      for (let i = 0; i < res.length; i++) {
+        let item = res[i];
+
+        let followed = await isFollowed(item.targetId, usernumber);
+        item.isFollowed = Number(followed);
+      }
+    }
 
     ctx.body = {
       isOk: 1,
@@ -368,9 +399,40 @@ class PublicController {
 
   // 获取关注用户的列表
   async getFollowedList(ctx) {
-    const { targetId } = ctx.query;
+    let { targetId, usernumber, limit, skip } = ctx.query;
 
-    let res = await getFollowedList(targetId);
+    limit = Number(limit) || 9;
+    skip = Number(skip) || 0;
+
+    let res = await getFollowedList(targetId, limit, skip);
+
+    // 返回目标用户信息
+    for (let i = 0; i < res.length; i++) {
+      res[i] = res[i].toObject();
+      let item = res[i];
+
+      item.author = await UserModel.findOne(
+        { usernumber: item.authorId },
+        "usernumber name pic title summary follow followed"
+      );
+      // 查询用户发布的文章数量
+      if (item.author) {
+        item.author = item.author.toObject();
+        item.author.articleCount = await ArticleModel.find({
+          author: item.author.usernumber,
+        }).count();
+      }
+    }
+
+    // 判断当前查看这些信息的用户是否关注这些用户
+    if (usernumber) {
+      for (let i = 0; i < res.length; i++) {
+        let item = res[i];
+
+        let followed = await isFollowed(item.authorId, usernumber);
+        item.isFollowed = Number(followed);
+      }
+    }
 
     ctx.body = {
       isOk: 1,
