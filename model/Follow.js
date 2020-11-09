@@ -54,15 +54,21 @@ const isFollowed = async (targetId, authorId) => {
 };
 
 // 获取 我关注的人列表
-const getFollowList = async (authorId) => {
-  let res = await FollowModel.find({ authorId });
+const getFollowList = async (authorId, limit, skip) => {
+  let res = await FollowModel.find({ authorId })
+    .limit(limit)
+    .skip(skip * limit)
+    .sort({ created: -1 });
 
   return res;
 };
 
 // 获取 关注我的人列表
-const getFollowedList = async (targetId) => {
-  let res = await FollowModel.find({ targetId });
+const getFollowedList = async (targetId, limit, skip) => {
+  let res = await FollowModel.find({ targetId })
+    .limit(limit)
+    .skip(skip * limit)
+    .sort({ created: -1 });
 
   return res;
 };
