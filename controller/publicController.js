@@ -375,7 +375,13 @@ class PublicController {
 
         collectionItem.article = await ArticleModel.findOne(
           { articleId: collectionItem.targetId },
-          "articleId title banner"
+          "articleId title banner created author likeCount commentCount"
+        );
+
+        // 用户信息
+        collectionItem.author = await UserModel.findOne(
+          { usernumber: collectionItem.article.author },
+          "usernumber name pic"
         );
         return collectionItem;
       })
