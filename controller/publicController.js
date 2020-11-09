@@ -59,7 +59,7 @@ class PublicController {
 
   // 获取文章列表
   async getArticleList(ctx) {
-    let { limit, skip } = ctx.query;
+    let { limit, skip, usernumber } = ctx.query;
 
     // 1. 校验数据
     limit = Number(limit) ? Number(limit) : null;
@@ -70,10 +70,15 @@ class PublicController {
     const filterStr = filterList.join(" ");
 
     // 3. 读取数据
-    let result = await ArticleModel.find({ status: 1 }, filterStr)
-      .sort({ created: -1 })
-      .skip(skip * limit)
-      .limit(limit);
+    let result = [];
+    if (usernumber) {
+      result = await ArticleModel.find({ status: 1, author: usernumber });
+    } else {
+      result = await ArticleModel.find({ status: 1 }, filterStr)
+        .sort({ created: -1 })
+        .skip(skip * limit)
+        .limit(limit);
+    }
 
     // 4. 查找文章对应的作者信息
     result = await Promise.all(
@@ -377,9 +382,10 @@ class PublicController {
           { articleId: collectionItem.targetId },
           "articleId title banner created author likeCount commentCount"
         );
+        collectionItem.article = collectionItem.article.toObject();
 
         // 用户信息
-        collectionItem.author = await UserModel.findOne(
+        collectionItem.article.author = await UserModel.findOne(
           { usernumber: collectionItem.article.author },
           "usernumber name pic"
         );
