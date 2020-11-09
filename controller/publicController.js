@@ -119,6 +119,10 @@ class PublicController {
       };
       return;
     }
+    // 阅读量 ++
+    result.viewCount++;
+    result.save();
+
     result = result.toObject();
 
     // 3. 查询作者信息
