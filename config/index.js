@@ -1,3 +1,6 @@
+// 项目启动时间
+const TIFA_BIRTHDAY = 1603596227000;
+
 // MongoDB地址
 const DB_URL = "mongodb://localhost/Tifa";
 
@@ -14,6 +17,7 @@ const REDIS = {
 const CAPTCHA_LIFE = 10 * 60;
 
 module.exports = {
+  TIFA_BIRTHDAY,
   DB_URL,
   REDIS,
   JWT_SECRET,
