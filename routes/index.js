@@ -15,8 +15,11 @@ router.post("/uploadImg", async (ctx, next) => {
   path = `/${path[path.length - 2]}/${path[path.length - 1]}`;
 
   ctx.body = {
-    uploaded: true,
-    url: BASE_URL + path,
+    isOk: 1,
+    data: {
+      uploaded: true,
+      url: BASE_URL + path,
+    },
   };
 });
 
