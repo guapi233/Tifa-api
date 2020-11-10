@@ -422,7 +422,7 @@ class PublicController {
         item.author = item.author.toObject();
         item.author.articleCount = await ArticleModel.find({
           author: item.author.usernumber,
-        }).count();
+        }).countDocuments();
       }
     }
 
@@ -465,7 +465,7 @@ class PublicController {
         item.author = item.author.toObject();
         item.author.articleCount = await ArticleModel.find({
           author: item.author.usernumber,
-        }).count();
+        }).countDocuments();
       }
     }
 
