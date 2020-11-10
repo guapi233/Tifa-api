@@ -1,16 +1,22 @@
 const router = require("koa-router")();
+const { BASE_URL } = require("../config");
 
 router.get("/", async (ctx, next) => {
   ctx.body = "??";
 });
 
-router.get("/string", async (ctx, next) => {
-  ctx.body = "koa2 string";
-});
+router.post("/uploadImg", async (ctx, next) => {
+  console.log(ctx.request.files);
 
-router.get("/json", async (ctx, next) => {
+  let { path } = ctx.request.files.file;
+
+  // 解析图片路径
+  path = path.split("\\");
+  path = `/${path[path.length - 2]}/${path[path.length - 1]}`;
+
   ctx.body = {
-    title: "koa2 json",
+    uploaded: true,
+    url: BASE_URL + path,
   };
 });
 
