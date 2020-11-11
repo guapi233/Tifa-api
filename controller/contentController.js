@@ -281,7 +281,8 @@ class ContentController {
   // 修改草稿
   async saveDraft(ctx) {
     // 1. 校验数据
-    let { draftId, title, authorId, content, banner } = ctx.request.body;
+    let { draftId, title, content, banner } = ctx.request.body;
+    let authorId = ctx.usernumber;
     title = title || "无标题";
     banner = banner || "";
     if (!draftId || !authorId || !content) {
