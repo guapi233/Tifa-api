@@ -40,8 +40,8 @@ const newDraft = async (draftObj) => {
 };
 
 // 删除草稿
-const delDraft = async (draftId) => {
-  let res = await DraftModel.updateOne({ draftId }, { status: 0 });
+const delDraft = async (draftId, authorId) => {
+  let res = await DraftModel.updateOne({ draftId, authorId }, { status: 0 });
 
   if (!res.n) {
     return false;
@@ -50,11 +50,11 @@ const delDraft = async (draftId) => {
 };
 
 // 更新草稿
-const updateDraft = async (draftObj) => {
+const updateDraft = async (draftObj, authorId) => {
   const { draftId, title, banner, content } = draftObj;
 
   let res = await DraftModel.updateOne(
-    { draftId },
+    { draftId, authorId },
     { title, banner, content, updated: Date.now() }
   );
 
@@ -65,8 +65,8 @@ const updateDraft = async (draftObj) => {
 };
 
 // 查询草稿是否存在
-const draftIsExist = async (draftId) => {
-  let res = await DraftModel.findOne({ draftId, status: 1 }, "_id");
+const draftIsExist = async (draftId, authorId) => {
+  let res = await DraftModel.findOne({ draftId, status: 1, authorId }, "_id");
 
   if (!res) {
     return false;
@@ -82,8 +82,11 @@ const getDraftList = async (authorId) => {
 };
 
 // 查询草稿详情
-const getDraftDetail = async (draftId) => {
-  let res = await DraftModel.findOne({ draftId, status: 1 }, "-status");
+const getDraftDetail = async (draftId, authorId) => {
+  let res = await DraftModel.findOne(
+    { draftId, status: 1, authorId },
+    "-status"
+  );
 
   if (!res) {
     return false;
