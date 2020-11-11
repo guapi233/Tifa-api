@@ -76,7 +76,10 @@ const draftIsExist = async (draftId, authorId) => {
 
 // 查询草稿列表
 const getDraftList = async (authorId) => {
-  let res = await DraftModel.find({ authorId, status: 1 }, "-content -status");
+  let res = await DraftModel.find(
+    { authorId, status: 1 },
+    "-content -status"
+  ).sort({ created: -1 });
 
   return res;
 };
