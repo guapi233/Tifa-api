@@ -64,6 +64,16 @@ const updateDraft = async (draftObj) => {
   return true;
 };
 
+// 查询草稿是否存在
+const draftIsExist = async (draftId) => {
+  let res = await DraftModel.findOne({ draftId, status: 1 }, "_id");
+
+  if (!res) {
+    return false;
+  }
+  return true;
+};
+
 // 查询草稿列表
 const getDraftList = async (authorId) => {
   let res = await DraftModel.find({ authorId, status: 1 }, "-content -status");
@@ -86,6 +96,7 @@ module.exports = {
   newDraft,
   delDraft,
   updateDraft,
+  draftIsExist,
   getDraftList,
   getDraftDetail,
 };
