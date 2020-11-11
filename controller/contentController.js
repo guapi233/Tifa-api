@@ -8,6 +8,15 @@ const {
   isCollected,
   delCollection,
 } = require("../model/Collection");
+const {
+  DraftModel,
+  newDraft,
+  delDraft,
+  updateDraft,
+  draftIsExist,
+  getDraftList,
+  getDraftDetail,
+} = require("../model/Draft");
 
 class ContentController {
   // 添加评论信息
@@ -266,6 +275,120 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: newer,
+    };
+  }
+
+  // 修改草稿
+  async saveDraft(ctx) {
+    // 1. 校验数据
+    let { draftId, title, authorId, content, banner } = ctx.request.body;
+    title = title || "无标题";
+    banner = banner || "";
+    if (!draftId || !authorId || !content) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要信息",
+      };
+      return;
+    }
+
+    // 2. 根据草稿是否存在 插入数据 | 修改数据
+
+    const exist = await draftIsExist(draftId);
+    let res = null;
+
+    if (exist) {
+      res = await updateDraft({
+        draftId,
+        title,
+        authorId,
+        content,
+        banner,
+      });
+    } else {
+      res = await newDraft(
+        {
+          draftId,
+          title,
+          authorId,
+          banner,
+          content,
+        },
+        ctx.usernumber
+      );
+    }
+
+    if (!res) {
+      ctx.body = {
+        isOk: 0,
+        data: "草稿保存失败",
+      };
+      return;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: "草稿已保存",
+    };
+  }
+
+  // 删除草稿
+  async delDraft(ctx) {
+    const draftId = ctx.usernumber;
+
+    if (!draftId) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要信息",
+      };
+      return;
+    }
+
+    let res = await delDraft(draftId, ctx.usernumber);
+
+    if (!res) {
+      ctx.body = {
+        isOk: 0,
+        data: "删除失败",
+      };
+      return;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: "成功删除该草稿",
+    };
+  }
+
+  // 查询草稿列表
+  async getDraftList(ctx) {
+    const authorId = ctx.usernumber;
+
+    let res = await getDraftList(authorId);
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 查询草稿详情
+  async getDraftDetail(ctx) {
+    const { draftId } = ctx.query;
+
+    let res = await getDraftDetail(draftId, ctx.usernumber);
+
+    if (!res) {
+      ctx.body = {
+        isOk: 0,
+        data: "草稿不存在",
+      };
+      return;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
     };
   }
 }
