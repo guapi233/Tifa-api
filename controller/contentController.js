@@ -334,7 +334,7 @@ class ContentController {
 
   // 删除草稿
   async delDraft(ctx) {
-    const draftId = ctx.usernumber;
+    const { draftId } = ctx.query;
 
     if (!draftId) {
       ctx.body = {
