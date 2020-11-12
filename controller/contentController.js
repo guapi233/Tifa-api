@@ -286,7 +286,7 @@ class ContentController {
     title = title || "无标题";
     words = words || 0;
     banner = banner || "";
-    if (!draftId || !authorId || !content) {
+    if (!draftId || !authorId) {
       ctx.body = {
         isOk: 0,
         data: "缺少必要信息",
