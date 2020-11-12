@@ -58,7 +58,7 @@ const updateDraft = (draftObj, authorId) => {
   const { draftId, title, banner, content, words } = draftObj;
 
   const setter = { draftId, title, banner, updated: Date.now() };
-  content && (setter.content = content);
+  typeof content !== "undefined" && (setter.content = content);
   typeof words !== "undefined" && (setter.words = words);
 
   DraftModel.updateOne({ draftId, authorId }, setter, (err) => {});
