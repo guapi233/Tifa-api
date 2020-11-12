@@ -281,9 +281,10 @@ class ContentController {
   // 修改草稿
   async saveDraft(ctx) {
     // 1. 校验数据
-    let { draftId, title, content, banner } = ctx.request.body;
+    let { draftId, title, content, banner, words } = ctx.request.body;
     let authorId = ctx.usernumber;
     title = title || "无标题";
+    words = words || 0;
     banner = banner || "";
     if (!draftId || !authorId || !content) {
       ctx.body = {
@@ -305,6 +306,7 @@ class ContentController {
         authorId,
         content,
         banner,
+        words,
       });
     } else {
       res = await newDraft(
