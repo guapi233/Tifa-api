@@ -72,7 +72,9 @@ class PublicController {
     // 3. 读取数据
     let result = [];
     if (usernumber) {
-      result = await ArticleModel.find({ status: 1, author: usernumber });
+      result = await ArticleModel.find({ status: 1, author: usernumber }).sort({
+        created: -1,
+      });
     } else {
       result = await ArticleModel.find({ status: 1 }, filterStr)
         .sort({ created: -1 })
