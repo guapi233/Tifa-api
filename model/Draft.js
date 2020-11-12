@@ -54,14 +54,14 @@ const delDraft = async (draftId, authorId) => {
 };
 
 // 更新草稿
-const updateDraft = async (draftObj, authorId) => {
+const updateDraft = (draftObj, authorId) => {
   const { draftId, title, banner, content, words } = draftObj;
 
   const setter = { draftId, title, banner, updated: Date.now() };
   content && (setter.content = content);
   typeof words !== "undefined" && (setter.words = words);
 
-  DraftModel.updateOne({ draftId, authorId }, setter);
+  DraftModel.updateOne({ draftId, authorId }, setter, (err) => {});
 
   return true;
 };

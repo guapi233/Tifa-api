@@ -298,7 +298,8 @@ class ContentController {
     let res = null;
 
     if (exist) {
-      res = await updateDraft(
+      // 更新
+      res = updateDraft(
         {
           draftId,
           title,
@@ -310,6 +311,7 @@ class ContentController {
         ctx.usernumber
       );
     } else {
+      // 新建
       res = await newDraft(
         {
           draftId,
