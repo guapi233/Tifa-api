@@ -295,19 +295,21 @@ class ContentController {
     }
 
     // 2. 根据草稿是否存在 插入数据 | 修改数据
-
-    const exist = await draftIsExist(draftId);
+    const exist = await draftIsExist(draftId, ctx.usernumber);
     let res = null;
 
     if (exist) {
-      res = await updateDraft({
-        draftId,
-        title,
-        authorId,
-        content,
-        banner,
-        words,
-      });
+      res = await updateDraft(
+        {
+          draftId,
+          title,
+          authorId,
+          content,
+          banner,
+          words,
+        },
+        ctx.usernumber
+      );
     } else {
       res = await newDraft(
         {
