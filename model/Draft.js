@@ -15,6 +15,10 @@ const DraftSchema = new Schema({
   updated: Date,
   banner: String,
   content: String,
+  words: {
+    type: Number,
+    default: 0,
+  },
   status: {
     type: Number,
     default: 1,
