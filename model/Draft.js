@@ -62,9 +62,6 @@ const updateDraft = async (draftObj, authorId) => {
     { title, banner, content, updated: Date.now() }
   );
 
-  if (!res.n) {
-    return false;
-  }
   return true;
 };
 
