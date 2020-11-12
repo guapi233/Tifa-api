@@ -385,14 +385,6 @@ class ContentController {
 
     let res = await getDraftDetail(draftId, ctx.usernumber);
 
-    if (!res) {
-      ctx.body = {
-        isOk: 0,
-        data: "草稿不存在",
-      };
-      return;
-    }
-
     ctx.body = {
       isOk: 1,
       data: res,
