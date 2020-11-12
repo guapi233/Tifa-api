@@ -81,7 +81,7 @@ const getDraftList = async (authorId) => {
   let res = await DraftModel.find(
     { authorId, status: 1 },
     "-content -status"
-  ).sort({ created: -1 });
+  ).sort({ updated: -1 });
 
   return res;
 };
