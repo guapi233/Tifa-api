@@ -57,7 +57,7 @@ const delDraft = async (draftId, authorId) => {
 const updateDraft = async (draftObj, authorId) => {
   const { draftId, title, banner, content } = draftObj;
 
-  let res = await DraftModel.updateOne(
+  DraftModel.updateOne(
     { draftId, authorId },
     { title, banner, content, updated: Date.now() }
   );
