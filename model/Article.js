@@ -42,6 +42,7 @@ const ArticleSchema = new Schema({
     type: Number,
     default: 1,
   },
+  content: String,
 });
 
 const ArticleModel = mongoose.model("articles", ArticleSchema);
