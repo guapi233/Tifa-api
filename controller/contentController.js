@@ -284,7 +284,6 @@ class ContentController {
     let { draftId, title, content, banner, words } = ctx.request.body;
     let authorId = ctx.usernumber;
     title = title || "无标题";
-    words = words || 0;
     banner = banner || "";
     if (!draftId || !authorId) {
       ctx.body = {
@@ -317,7 +316,8 @@ class ContentController {
           title,
           authorId,
           banner,
-          content,
+          content: content || "",
+          words: words || 0,
         },
         ctx.usernumber
       );
