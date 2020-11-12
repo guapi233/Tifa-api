@@ -1,5 +1,5 @@
 const { newComment, CommentModel } = require("../model/Comment");
-const { ArticleModel } = require("../model/Article");
+const { ArticleModel, newArticle } = require("../model/Article");
 const { newLike, delLike, isLiked } = require("../model/Like");
 const { getJwtPaload } = require("../utils/index");
 const { UserModel } = require("../model/User");
@@ -392,6 +392,50 @@ class ContentController {
     const { draftId } = ctx.query;
 
     let res = await getDraftDetail(draftId, ctx.usernumber);
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 新增文章
+  async addArticle(ctx) {
+    // 1. 校验信息
+    const { title, banner, tags, content, draftId } = ctx.request.body;
+
+    if (!title || !content) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要信息",
+      };
+      return;
+    }
+
+    // 2. 新建文章
+    let res = await newArticle({
+      title,
+      banner,
+      tags,
+      content,
+      author: ctx.usernumber,
+    });
+
+    if (!res) {
+      ctx.body = {
+        isOk: 0,
+        data: "文章发布失败",
+      };
+      return;
+    }
+
+    // 3. 获取用户信息
+    res.author = await UserModel.findOne({ usernumber: ctx.usernumber });
+
+    // 4. 移除草稿
+    if (draftId) {
+      await delDraft(draftId, ctx.usernumber);
+    }
 
     ctx.body = {
       isOk: 1,

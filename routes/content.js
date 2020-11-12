@@ -34,4 +34,7 @@ router.get("/getDraftList", contentController.getDraftList);
 // 获取草稿详情
 router.get("/getDraftDetail", contentController.getDraftDetail);
 
+// 新增文章
+router.post("/addArticle", contentController.addArticle);
+
 module.exports = router;
