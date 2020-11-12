@@ -283,12 +283,20 @@ class ContentController {
     // 1. 校验数据
     let { draftId, title, content, banner, words } = ctx.request.body;
     let authorId = ctx.usernumber;
-    title = title || "无标题";
+    title = title || "";
     banner = banner || "";
     if (!draftId || !authorId) {
       ctx.body = {
         isOk: 0,
         data: "缺少必要信息",
+      };
+      return;
+    }
+    // 过滤 无效保存
+    if (!title && !banner && !content && !words) {
+      ctx.body = {
+        isOk: 1,
+        data: "草稿已保存",
       };
       return;
     }
