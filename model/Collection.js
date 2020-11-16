@@ -55,7 +55,7 @@ const delCollection = async (targetId, authorId) => {
 
 // 获取收藏列表
 const getCollections = async (authorId) => {
-  let res = await CollectionModel.find({ authorId });
+  let res = await CollectionModel.find({ authorId }).sort({ created: -1 });
 
   return res;
 };
