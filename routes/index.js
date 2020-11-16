@@ -5,6 +5,7 @@ router.get("/", async (ctx, next) => {
   ctx.body = "??";
 });
 
+// 上传图片
 router.post("/uploadImg", async (ctx, next) => {
   console.log(ctx.request.files);
 

@@ -1,6 +1,7 @@
 /**
- * 通用的工具方法
+ * 🛠 通用的工具方法
  */
+
 const { getRedisVal, delRedisVal } = require("../utils/redis");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
@@ -29,6 +30,7 @@ const getUuid = () => {
 
 /**
  * 获取 JWT payload
+ * @param token 令牌
  */
 const getJwtPaload = (token) => {
   const payload = jwt.verify(token.split(" ")[1], JWT_SECRET);
@@ -41,6 +43,7 @@ const getJwtPaload = (token) => {
 
 /**
  * 洗牌算法
+ * @param arr 数组
  */
 const shuffle = (arr) => {
   if (!arr.length) return [];
