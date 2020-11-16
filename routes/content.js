@@ -37,4 +37,7 @@ router.get("/getDraftDetail", contentController.getDraftDetail);
 // 新增文章
 router.post("/addArticle", contentController.addArticle);
 
+// 删除文章
+router.get("/delArticle", contentController.delArticle);
+
 module.exports = router;

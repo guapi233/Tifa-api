@@ -1,5 +1,5 @@
 const { newComment, CommentModel } = require("../model/Comment");
-const { ArticleModel, newArticle } = require("../model/Article");
+const { ArticleModel, newArticle, delArticle } = require("../model/Article");
 const { newLike, delLike, isLiked } = require("../model/Like");
 const { getJwtPaload } = require("../utils/index");
 const { UserModel } = require("../model/User");
@@ -440,6 +440,27 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: res,
+    };
+  }
+
+  // 删除文章
+  async delArticle(ctx) {
+    const { articleId } = ctx.query;
+    const author = ctx.usernumber;
+
+    let res = await delArticle(articleId, author);
+
+    if (!res) {
+      ctx.body = {
+        isOk: 0,
+        data: "删除失败",
+      };
+      return;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: "删除成功",
     };
   }
 }
