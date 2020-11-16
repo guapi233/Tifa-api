@@ -33,4 +33,7 @@ router.get("/getFollowList", publicController.getFollowList);
 // 获取用户收藏列表
 router.get("/getFollowedList", publicController.getFollowedList);
 
+// 获取当前文章衍生的推荐阅读文章
+router.get("/getRecArticle", publicController.getRecArticle);
+
 module.exports = router;

@@ -1,5 +1,6 @@
 const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
+const { shuffle } = require("../utils/index");
 const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
@@ -484,6 +485,49 @@ class PublicController {
     ctx.body = {
       isOk: 1,
       data: res,
+    };
+  }
+
+  // 获取当前文章衍生的推荐阅读文章
+  async getRecArticle(ctx) {
+    let { articleId, tags, limit } = ctx.query;
+    tags = tags.split("|");
+    limit = Number(limit) || 6;
+
+    let articles = [],
+      idList = [articleId];
+
+    // 1. 查询数据
+    for (let i = 0; i < tags.length; i++) {
+      let res = await ArticleModel.find({
+        tags: { $in: tags[i] },
+        articleId: { $nin: idList },
+      }).limit(limit);
+
+      articles.push(...res);
+      res.forEach((item) => {
+        idList.push(item.articleId);
+      });
+    }
+
+    // 2. 打乱数据 & 获取指定数量
+    articles = shuffle(articles);
+    articles = articles.splice(0, limit);
+
+    // 3. 查询文章作者信息
+    for (let i = 0; i < articles.length; i++) {
+      let res = await UserModel.findOne(
+        { usernumber: articles[i].author },
+        "usernumber name pic"
+      );
+
+      articles[i] = articles[i].toObject();
+      articles[i].author = res;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: articles,
     };
   }
 }
