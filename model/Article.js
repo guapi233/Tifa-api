@@ -67,7 +67,22 @@ const newArticle = async (articleObj) => {
   return newer.toObject();
 };
 
+/**
+ * 删除一篇文章，返回删除的结构
+ * @param {*} articleId 文章Id
+ * @param {*} author 当前用户（用户判定是否为作者）
+ */
+const delArticle = async (articleId, author) => {
+  let res = await ArticleModel.updateOne({ articleId, author }, { status: 0 });
+
+  if (!res.n) {
+    return false;
+  }
+  return true;
+};
+
 module.exports = {
   ArticleModel,
   newArticle,
+  delArticle,
 };
