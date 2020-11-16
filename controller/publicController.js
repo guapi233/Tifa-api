@@ -383,9 +383,14 @@ class PublicController {
 
         collectionItem.article = await ArticleModel.findOne(
           { articleId: collectionItem.targetId },
-          "articleId title banner created author likeCount commentCount"
+          "articleId title banner created author likeCount commentCount status"
         );
         collectionItem.article = collectionItem.article.toObject();
+
+        // 判断该文章是否被删除
+        if (!collectionItem.article.status) {
+          collectionItem.article.title += "（已删除）";
+        }
 
         // 用户信息
         collectionItem.article.author = await UserModel.findOne(
