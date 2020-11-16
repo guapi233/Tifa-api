@@ -39,8 +39,26 @@ const getJwtPaload = (token) => {
   return payload;
 };
 
+/**
+ * 洗牌算法
+ */
+const shuffle = (arr) => {
+  if (!arr.length) return [];
+
+  arr = [...arr];
+  let i = arr.length;
+
+  while (--i) {
+    let j = Math.floor(Math.random() * i);
+    [arr[j], arr[i]] = [arr[i], arr[j]];
+  }
+
+  return arr;
+};
+
 module.exports = {
   checkCaptcha,
   getUuid,
   getJwtPaload,
+  shuffle,
 };
