@@ -68,7 +68,13 @@ const updateDraft = (draftObj, authorId) => {
 
 // 查询草稿是否存在
 const draftIsExist = async (draftId, authorId) => {
-  let res = await DraftModel.findOne({ draftId, status: 1, authorId }, "_id");
+  let res = await DraftModel.findOne({ draftId, authorId }, "_id status");
+
+  // 重新打开该更新草稿
+  if (!res.status) {
+    res.status = 1;
+    await res.save();
+  }
 
   if (!res) {
     return false;
