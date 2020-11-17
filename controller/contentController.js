@@ -6,7 +6,7 @@ const {
   modifyArticle,
 } = require("../model/Article");
 const { newLike, delLike, isLiked } = require("../model/Like");
-const { getJwtPaload } = require("../utils/index");
+const { getJwtPaload, isNumber } = require("../utils/index");
 const { UserModel } = require("../model/User");
 const {
   newCollection,
@@ -22,6 +22,14 @@ const {
   getDraftList,
   getDraftDetail,
 } = require("../model/Draft");
+const {
+  ReportModel,
+  newReport,
+  delReport,
+  existReport,
+  getReportDetail,
+} = require("../model/Report");
+const { get } = require("mongoose");
 
 class ContentController {
   // 添加评论信息
@@ -521,6 +529,104 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: "更新成功",
+    };
+  }
+
+  // 举报
+  async addReport(ctx) {
+    let { type, category, targetId, content } = ctx.request.body;
+    const authorId = ctx.usernumber;
+    type = Number(type);
+    category = Number(category);
+
+    // 1. 校验信息
+    if (!isNumber(type) || !isNumber(category) || !targetId || !content) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "缺少必要信息",
+      });
+    }
+
+    // 2. 判断是否重复举报
+    let existed = await existReport(targetId, authorId);
+    if (existed) {
+      return (ctx.body = {
+        isOk: 1,
+        data: "您已对该违规行为进行过举报，请耐心等待管理员处理",
+      });
+    }
+
+    // 3. 添加举报信息
+    await newReport({
+      type,
+      category,
+      targetId,
+      content,
+      authorId,
+    });
+
+    ctx.body = {
+      isOk: 1,
+      data: "举报成功，管理员会迅速做出处理",
+    };
+  }
+
+  // 获取举报列表（管理员）
+  async getReportList(ctx) {
+    let { limit, skip, targetId, type, category } = ctx.query;
+    limit = Number(limit) || 20;
+    skip = Number(skip) || 0;
+
+    // 1. 组件筛选条件对象
+    const filterObj = { status: 1 };
+    targetId && (filterObj["targetId"] = targetId);
+    type && (filterObj["type"] = type);
+    category && (filterObj["type"] = category);
+
+    // 2. 获取举报列表
+    let res = await ReportModel.find(filterObj, "-content -_id");
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 获取举报详情（管理员）
+  async getReportDetail(ctx) {
+    const { reportId } = ctx.query;
+    const oper = ctx.usernumber;
+
+    let res = await getReportDetail(reportId, oper);
+    if (!res) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "查询失败",
+      });
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 关闭目标的举报信息（管理员）
+  async delReport(ctx) {
+    const { targetId } = ctx.query;
+    const oper = ctx.usernumber;
+
+    let res = await delReport(targetId, oper);
+    if (!res) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "操作失败",
+      });
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: "操作成功",
     };
   }
 }

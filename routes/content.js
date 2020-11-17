@@ -46,4 +46,16 @@ router.get("/delArticle", contentController.delArticle);
 // 编辑文章
 router.post("/modifyArticle", contentController.modifyArticle);
 
+// 举报
+router.post("/addReport", contentController.addReport);
+
+// 获取举报列表（管理员）
+router.get("/getReportList", contentController.getReportList);
+
+// 获取举报详情（管理员）
+router.get("/getReportDetail", contentController.getReportDetail);
+
+// 关闭对某个目标的全部举报（管理员）
+router.get("/delReport", contentController.delReport);
+
 module.exports = router;
