@@ -43,4 +43,7 @@ router.post("/addArticle", contentController.addArticle);
 // 删除文章
 router.get("/delArticle", contentController.delArticle);
 
+// 编辑文章
+router.post("/modifyArticle", contentController.modifyArticle);
+
 module.exports = router;

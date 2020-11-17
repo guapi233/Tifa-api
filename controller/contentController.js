@@ -1,5 +1,10 @@
 const { newComment, CommentModel } = require("../model/Comment");
-const { ArticleModel, newArticle, delArticle } = require("../model/Article");
+const {
+  ArticleModel,
+  newArticle,
+  delArticle,
+  modifyArticle,
+} = require("../model/Article");
 const { newLike, delLike, isLiked } = require("../model/Like");
 const { getJwtPaload } = require("../utils/index");
 const { UserModel } = require("../model/User");
@@ -480,6 +485,42 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: "删除成功",
+    };
+  }
+
+  // 修改文章
+  async modifyArticle(ctx) {
+    // 1. 校验信息
+    const { title, banner, tags, content, draftId } = ctx.request.body;
+
+    if (!title || !content) {
+      ctx.body = {
+        isOk: 0,
+        data: "缺少必要信息",
+      };
+      return;
+    }
+
+    // 2. 更新数据
+    const res = await modifyArticle(
+      {
+        articleId: draftId,
+        title,
+        banner,
+        tags,
+        content,
+      },
+      ctx.usernumber
+    );
+
+    // 3. 移除草稿
+    if (draftId) {
+      await delDraft(draftId, ctx.usernumber);
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: "更新成功",
     };
   }
 }
