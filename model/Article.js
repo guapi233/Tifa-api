@@ -81,6 +81,11 @@ const delArticle = async (articleId, author) => {
   return true;
 };
 
+/**
+ * 编辑文章
+ * @param {*} articleObj 文章信息对象
+ * @param {*} author 作者（当前用户）
+ */
 const modifyArticle = async (articleObj, author) => {
   const { articleId } = articleObj;
   await ArticleModel.updateOne({ articleId, author, status: 1 }, articleObj);
