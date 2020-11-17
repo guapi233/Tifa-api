@@ -534,13 +534,13 @@ class ContentController {
 
   // 举报
   async addReport(ctx) {
-    let { type, category, targetId, content } = ctx.request.body;
+    let { type, category, targetId, content = "" } = ctx.request.body;
     const authorId = ctx.usernumber;
     type = Number(type);
     category = Number(category);
 
     // 1. 校验信息
-    if (!isNumber(type) || !isNumber(category) || !targetId || !content) {
+    if (!isNumber(type) || !isNumber(category) || !targetId) {
       return (ctx.body = {
         isOk: 0,
         data: "缺少必要信息",
