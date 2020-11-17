@@ -59,9 +59,27 @@ const shuffle = (arr) => {
   return arr;
 };
 
+/**
+ * 是否为undefined
+ * @param {*} value 值
+ */
+const isUndefined = (value) => {
+  return typeof value === "undefined";
+};
+
+/**
+ * 是否为数字
+ * @param {*} value 值
+ */
+const isNumber = (value) => {
+  return typeof value === "number" && !isNaN(value);
+};
+
 module.exports = {
   checkCaptcha,
   getUuid,
   getJwtPaload,
   shuffle,
+  isUndefined,
+  isNumber,
 };
