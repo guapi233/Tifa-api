@@ -347,6 +347,18 @@ class ContentController {
     };
   }
 
+  // 草稿是否存在
+  async draftIsExist(ctx) {
+    const { draftId } = ctx.query;
+
+    let res = await draftIsExist(draftId, ctx.usernumber);
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
   // 删除草稿
   async delDraft(ctx) {
     const { draftId } = ctx.query;
@@ -391,7 +403,14 @@ class ContentController {
   async getDraftDetail(ctx) {
     const { draftId } = ctx.query;
 
+    // 1. 去文章集合中查找，看是不是用于编辑原文章的草稿
+    let isEdit = await ArticleModel.findOne({ articleId: draftId }, "_id");
+
+    // 2. 查找草稿详细信息
     let res = await getDraftDetail(draftId, ctx.usernumber);
+
+    // 3. 挂载相关信息
+    res.isEdit = Boolean(isEdit);
 
     ctx.body = {
       isOk: 1,

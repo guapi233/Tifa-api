@@ -25,6 +25,9 @@ router.get("/addCollection", contentController.addCollection);
 // 保存草稿
 router.post("/saveDraft", contentController.saveDraft);
 
+// 草稿是否存在
+router.get("/existDraft", contentController.draftIsExist);
+
 // 删除草稿
 router.get("/delDraft", contentController.delDraft);
 
