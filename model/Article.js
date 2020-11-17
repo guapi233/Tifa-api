@@ -81,8 +81,16 @@ const delArticle = async (articleId, author) => {
   return true;
 };
 
+const modifyArticle = async (articleObj, author) => {
+  const { articleId } = articleObj;
+  await ArticleModel.updateOne({ articleId, author, status: 1 }, articleObj);
+
+  return true;
+};
+
 module.exports = {
   ArticleModel,
   newArticle,
   delArticle,
+  modifyArticle,
 };
