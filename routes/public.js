@@ -36,4 +36,7 @@ router.get("/getFollowedList", publicController.getFollowedList);
 // 获取当前文章衍生的推荐阅读文章
 router.get("/getRecArticle", publicController.getRecArticle);
 
+// 获取B站EMoji
+router.post("/getBiEmoji", publicController.getBiEmoji);
+
 module.exports = router;
