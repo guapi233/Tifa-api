@@ -554,12 +554,12 @@ class PublicController {
         // 1. 请求EMOJI图片
         let res = await axios({
           method: "GET",
-          url: emojiItem.url,
+          url: emojiItem,
           responseType: "stream",
         });
 
         // 2. 解析存储路径
-        const imgName = emojiItem.url.split("/").pop();
+        const imgName = emojiItem.split("/").pop();
         const savePath = path.resolve(__dirname, `../public/img/${imgName}`);
 
         // 3. 判断文件是否已经存在
@@ -569,8 +569,8 @@ class PublicController {
 
           if (saveArr.length === emojiList.length) {
             resolve({
+              count: emojiList.length,
               saveCount,
-              saveArr,
               existCount,
             });
           }
@@ -588,8 +588,8 @@ class PublicController {
           // 6. 如果已经全部写入完毕，返回数据
           if (saveArr.length === emojiList.length) {
             resolve({
+              count: emojiList.length,
               saveCount,
-              saveArr,
               existCount,
             });
           }
