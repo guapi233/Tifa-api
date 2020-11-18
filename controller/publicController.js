@@ -7,6 +7,9 @@ const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
 const { getLikes, isLiked, LikeModel } = require("../model/Like");
 const { isCollected, getCollections } = require("../model/Collection");
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 const {
   getFollowList,
   getFollowedList,
@@ -534,6 +537,74 @@ class PublicController {
       isOk: 1,
       data: articles,
     };
+  }
+
+  // 拉取B站EMOJI
+  async getBiEmoji(ctx) {
+    const { emojiList } = ctx.request.body;
+    let saveCount = 0,
+      existCount = 0,
+      saveArr = [];
+
+    // 遍历emoji列表
+    console.log(typeof emojiList, emojiList);
+    for (let i = 0; i < emojiList.length; i++) {
+      const emojiItem = emojiList[i];
+
+      // 1. 请求EMOJI图片
+      let res = await axios({
+        method: "GET",
+        url: emojiItem.url,
+        responseType: "stream",
+      });
+
+      // 2. 解析存储路径
+      const imgName = emojiItem.url.split("/").pop();
+      const savePath = path.resolve(__dirname, `../public/img/${imgName}`);
+
+      // 3. 判断文件是否已经存在
+      if (fs.existsSync(savePath)) {
+        existCount++;
+        saveArr.push(imgName);
+
+        console.log(saveArr.length, emojiList.length);
+        if (saveArr.length === emojiList.length) {
+          ctx.body = {
+            isOk: 1,
+            data: {
+              saveCount,
+              saveArr,
+              existCount,
+            },
+          };
+        }
+        continue;
+      }
+
+      // 4. 开启写入流
+      const writeStream = fs.createWriteStream(savePath);
+
+      // 5. 写入流关闭时记录存储数据
+      writeStream.once("close", () => {
+        saveCount++;
+        saveArr.push(imgName);
+
+        // 6. 如果已经全部写入完毕，返回数据
+        console.log(saveArr.length, emojiList.length);
+        if (saveArr.length === emojiList.length) {
+          ctx.body = {
+            isOk: 1,
+            data: {
+              saveCount,
+              saveArr,
+              existCount,
+            },
+          };
+        }
+      });
+
+      res.data.pipe(writeStream);
+    }
   }
 }
 
