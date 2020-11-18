@@ -546,65 +546,64 @@ class PublicController {
       existCount = 0,
       saveArr = [];
 
-    // 遍历emoji列表
-    console.log(typeof emojiList, emojiList);
-    for (let i = 0; i < emojiList.length; i++) {
-      const emojiItem = emojiList[i];
+    const data = await new Promise(async (resolve, reject) => {
+      // 遍历emoji列表
+      for (let i = 0; i < emojiList.length; i++) {
+        const emojiItem = emojiList[i];
 
-      // 1. 请求EMOJI图片
-      let res = await axios({
-        method: "GET",
-        url: emojiItem.url,
-        responseType: "stream",
-      });
+        // 1. 请求EMOJI图片
+        let res = await axios({
+          method: "GET",
+          url: emojiItem.url,
+          responseType: "stream",
+        });
 
-      // 2. 解析存储路径
-      const imgName = emojiItem.url.split("/").pop();
-      const savePath = path.resolve(__dirname, `../public/img/${imgName}`);
+        // 2. 解析存储路径
+        const imgName = emojiItem.url.split("/").pop();
+        const savePath = path.resolve(__dirname, `../public/img/${imgName}`);
 
-      // 3. 判断文件是否已经存在
-      if (fs.existsSync(savePath)) {
-        existCount++;
-        saveArr.push(imgName);
+        // 3. 判断文件是否已经存在
+        if (fs.existsSync(savePath)) {
+          existCount++;
+          saveArr.push(imgName);
 
-        console.log(saveArr.length, emojiList.length);
-        if (saveArr.length === emojiList.length) {
-          ctx.body = {
-            isOk: 1,
-            data: {
+          if (saveArr.length === emojiList.length) {
+            resolve({
               saveCount,
               saveArr,
               existCount,
-            },
-          };
+            });
+          }
+          continue;
         }
-        continue;
+
+        // 4. 开启写入流
+        const writeStream = fs.createWriteStream(savePath);
+
+        // 5. 写入流关闭时记录存储数据
+        writeStream.once("close", () => {
+          saveCount++;
+          saveArr.push(imgName);
+
+          // 6. 如果已经全部写入完毕，返回数据
+          if (saveArr.length === emojiList.length) {
+            resolve({
+              saveCount,
+              saveArr,
+              existCount,
+            });
+          }
+        });
+
+        // 7. 写入数据
+        res.data.pipe(writeStream);
       }
+    });
 
-      // 4. 开启写入流
-      const writeStream = fs.createWriteStream(savePath);
-
-      // 5. 写入流关闭时记录存储数据
-      writeStream.once("close", () => {
-        saveCount++;
-        saveArr.push(imgName);
-
-        // 6. 如果已经全部写入完毕，返回数据
-        console.log(saveArr.length, emojiList.length);
-        if (saveArr.length === emojiList.length) {
-          ctx.body = {
-            isOk: 1,
-            data: {
-              saveCount,
-              saveArr,
-              existCount,
-            },
-          };
-        }
-      });
-
-      res.data.pipe(writeStream);
-    }
+    ctx.body = {
+      isOk: 1,
+      data,
+    };
   }
 }
 
