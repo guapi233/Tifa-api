@@ -510,6 +510,7 @@ class PublicController {
       let res = await ArticleModel.find({
         tags: { $in: tags[i] },
         articleId: { $nin: idList },
+        status: 1,
       }).limit(limit);
 
       articles.push(...res);
