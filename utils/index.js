@@ -43,7 +43,6 @@ const getJwtPaload = (token) => {
 
   // 判断是否过期（这里的判断没有必要，因为过期的token已经被 koa-jwt 拦截下了）
   // if (payload.exp * 1000 < Date.now()) return false;
-  console.log(payload);
   return payload;
 };
 
