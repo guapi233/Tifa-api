@@ -17,6 +17,7 @@ const LikeSchema = new Schema({
     default: 0,
   },
   targetAuthor: String,
+  type: Number,
   created: Date,
 });
 
