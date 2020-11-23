@@ -144,13 +144,13 @@ class ContentController {
     }
 
     // 5. 添加评论
-    console.log("??", target.author || target.authorId);
     let newer = await newComment({
       targetId,
       replyId,
       authorId: payload.usernumber,
       targetAuthor: target.author || target.authorId,
       content,
+      type,
     });
 
     if (!newer) {
@@ -227,6 +227,7 @@ class ContentController {
           targetId,
           authorId: usernumber,
           targetAuthor: targetObj.author || targetObj.authorId,
+          type,
         });
         targetObj.likeCount++;
         await targetObj.save();
@@ -645,8 +646,29 @@ class ContentController {
 
   // 获取未读的点赞列表
   async getUnReadLikeList(ctx) {
-    const targetId = ctx.usernumber;
-    const res = await LikeModel.find({ targetId, isRead: 0 });
+    const targetAuthor = ctx.usernumber;
+    const res = await LikeModel.find({ targetAuthor, isRead: 0 });
+
+    // 查询拓展信息
+    for (let i = 0; i < res.length; i++) {
+      let temp = (res[i] = res[i].toObject()),
+        content = "";
+
+      // 查询点赞的内容（文章展示标题）
+      if (temp.type === 0) {
+        content = await ArticleModel.findOne(
+          { articleId: temp.targetId },
+          "-_id title"
+        );
+      } else if (temp.type === 1) {
+        content = await CommentModel.findOne(
+          { commentId: temp.targetId },
+          "-_id content"
+        );
+      }
+
+      temp.content = content.title || content.content;
+    }
 
     ctx.body = {
       isOk: 1,

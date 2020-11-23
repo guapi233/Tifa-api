@@ -58,4 +58,7 @@ router.get("/getReportDetail", contentController.getReportDetail);
 // 关闭对某个目标的全部举报（管理员）
 router.get("/delReport", contentController.delReport);
 
+// 获取未读的点赞列表
+router.get("/getUnReadLikeList", contentController.getUnReadLikeList);
+
 module.exports = router;
