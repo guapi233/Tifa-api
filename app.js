@@ -20,7 +20,7 @@ onerror(app);
 
 // 定义公共路径，不需要 JWT 鉴权
 const jwt = JWT({ secret: require("./config/index").JWT_SECRET }).unless({
-  path: [/^\/public/, /^\/login/],
+  path: [/^\/public/, /^\/login/, /^\/socket.io/],
 });
 
 // 处理 jwt 无权错误
