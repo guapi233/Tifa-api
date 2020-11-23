@@ -80,6 +80,16 @@ const isNumber = (value) => {
   return typeof value === "number" && !isNaN(value);
 };
 
+/**
+ * 判断时间戳是否过期
+ * @param date 时间戳
+ */
+const isOverdue = (date) => {
+  if (isNaN(date)) return true;
+
+  return Date.now() >= date;
+};
+
 module.exports = {
   checkCaptcha,
   getUuid,
@@ -87,4 +97,5 @@ module.exports = {
   shuffle,
   isUndefined,
   isNumber,
+  isOverdue,
 };
