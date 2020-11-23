@@ -5,7 +5,7 @@ const {
   delArticle,
   modifyArticle,
 } = require("../model/Article");
-const { newLike, delLike, isLiked } = require("../model/Like");
+const { LikeModel, newLike, delLike, isLiked } = require("../model/Like");
 const { getJwtPaload, isNumber } = require("../utils/index");
 const { UserModel } = require("../model/User");
 const {
@@ -29,7 +29,6 @@ const {
   existReport,
   getReportDetail,
 } = require("../model/Report");
-const { get } = require("mongoose");
 
 class ContentController {
   // 添加评论信息
@@ -62,8 +61,10 @@ class ContentController {
       idName = targetModels[type][1],
       filterStr =
         type === 1
-          ? `commentId targetId commentCount`
-          : `${idName} commentCount`;
+          ? `commentId targetId commentCount `
+          : `${idName} commentCount `;
+    filterStr += type === 0 ? "author " : "authorId ";
+
     let target = await model.findOne(
       { [idName]: targetId, status: 1 },
       filterStr
@@ -143,10 +144,12 @@ class ContentController {
     }
 
     // 5. 添加评论
+    console.log("??", target.author || target.authorId);
     let newer = await newComment({
       targetId,
       replyId,
       authorId: payload.usernumber,
+      targetAuthor: target.author || target.authorId,
       content,
     });
 
@@ -216,20 +219,30 @@ class ContentController {
         }
       );
     } else {
-      res = await newLike({
-        targetId,
-        authorId: usernumber,
-      });
+      // 读取 targetAuthor
+      let targetObj = await model.findOne({ [idName]: targetId });
 
-      // 点赞目标 likeCount++
-      await model.updateOne(
-        { [idName]: targetId },
-        {
-          $inc: {
-            likeCount: 1,
-          },
-        }
-      );
+      if (targetObj) {
+        res = await newLike({
+          targetId,
+          authorId: usernumber,
+          targetAuthor: targetObj.author || targetObj.authorId,
+        });
+        targetObj.likeCount++;
+        await targetObj.save();
+      } else {
+        res = false;
+      }
+
+      // // 点赞目标 likeCount++
+      // await model.updateOne(
+      //   { [idName]: targetId },
+      //   {
+      //     $inc: {
+      //       likeCount: 1,
+      //     },
+      //   }
+      // );
     }
 
     // 4. 按照 操作3 返回对应的格式
@@ -627,6 +640,17 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: "操作成功",
+    };
+  }
+
+  // 获取未读的点赞列表
+  async getUnReadLikeList(ctx) {
+    const targetId = ctx.usernumber;
+    const res = await LikeModel.find({ targetId, isRead: 0 });
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
     };
   }
 }
