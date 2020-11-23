@@ -12,6 +12,10 @@ const FollowSchema = new Schema({
   },
   targetId: String,
   authorId: String,
+  isRead: {
+    type: Number,
+    default: 0,
+  },
   created: Date,
 });
 
