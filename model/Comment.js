@@ -30,6 +30,7 @@ const CommentSchema = new Schema({
     type: Number,
     default: 0,
   },
+  targetAuthor: String,
   status: {
     type: Number,
     default: 1,
