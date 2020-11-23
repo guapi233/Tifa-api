@@ -33,11 +33,17 @@ const getUuid = () => {
  * @param token 令牌
  */
 const getJwtPaload = (token) => {
-  const payload = jwt.verify(token.split(" ")[1], JWT_SECRET);
+  let payload = {};
+
+  try {
+    payload = jwt.verify(token.split(" ")[1], JWT_SECRET);
+  } catch (err) {
+    // noop
+  }
 
   // 判断是否过期（这里的判断没有必要，因为过期的token已经被 koa-jwt 拦截下了）
   // if (payload.exp * 1000 < Date.now()) return false;
-
+  console.log(payload);
   return payload;
 };
 
