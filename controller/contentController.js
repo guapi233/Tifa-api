@@ -724,9 +724,10 @@ class ContentController {
       // await res[i].save();
 
       let temp = (res[i] = res[i].toObject()),
-        content = "";
+        content = {};
 
       // 查询评论的内容（文章展示标题）
+      // 如果当前评论对象是评论（1），那需要找出一级评论的评论对象
       if (temp.type === 0) {
         content = await ArticleModel.findOne(
           { articleId: temp.targetId },
@@ -735,7 +736,7 @@ class ContentController {
       } else if (temp.type === 1) {
         content = await CommentModel.findOne(
           { commentId: temp.targetId },
-          "-_id content"
+          "-_id content commentId type"
         );
       }
 
@@ -752,6 +753,9 @@ class ContentController {
       temp.content = content.title || content.content;
       temp.authorObj = authorObj;
       temp.isLiked = Number(liked);
+      // 如果评论目标（一级评论）的type为文章，则将 belong 属性设为文章Id
+      content.commentId && (temp.belong = content.commentId);
+      isNumber(content.type) && (temp.belongType = content.type);
     }
 
     // // 清除当前 点赞 的提醒数量
