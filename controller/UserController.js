@@ -1,6 +1,7 @@
 const { UserModel } = require("../model/User");
 const { getJwtPaload } = require("../utils/index");
 const { isFollowed, delFollow, newFollow } = require("../model/Follow");
+const { emitFollow } = require("../utils/socket");
 
 class UserController {
   // 编辑资料
@@ -137,7 +138,7 @@ class UserController {
       return;
     }
 
-    // 3. 新建收藏记录
+    // 3. 新建关注信息
     const newer = await newFollow({
       targetId,
       authorId: usernumber,
@@ -167,6 +168,9 @@ class UserController {
         },
       }
     );
+
+    // 5. 推送通知
+    emitFollow(targetId);
 
     ctx.body = {
       isOk: 1,
