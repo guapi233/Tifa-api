@@ -72,6 +72,11 @@ const getLikes = async (targetId, limit = 3) => {
   return res;
 };
 
+/**
+ * 获取未读的点赞列表
+ * @param {*} targetAuthor 点赞对象的作者Id
+ * @param {*} count 是否只获取数量（默认false）
+ */
 const getUnReaders = async (targetAuthor, count = false) => {
   let res = null;
 
