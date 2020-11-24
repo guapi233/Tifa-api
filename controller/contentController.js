@@ -29,7 +29,7 @@ const {
   existReport,
   getReportDetail,
 } = require("../model/Report");
-const { emitLike } = require("../utils/socket");
+const { emitLike, emitComment } = require("../utils/socket");
 
 class ContentController {
   // 添加评论信息
@@ -153,6 +153,9 @@ class ContentController {
       content,
       type,
     });
+
+    // 推送提醒
+    emitComment(newer.targetAuthor);
 
     if (!newer) {
       ctx.body = {
