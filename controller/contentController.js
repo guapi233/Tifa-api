@@ -156,7 +156,7 @@ class ContentController {
     });
 
     // 推送提醒
-    emitComment(newer.targetAuthor);
+    emitComment(replyId);
 
     if (!newer) {
       ctx.body = {
@@ -712,7 +712,7 @@ class ContentController {
     limit = Number(limit) || 20;
     const targetAuthor = ctx.usernumber;
 
-    const res = await CommentModel.find({ targetAuthor, isRead: 0 })
+    const res = await CommentModel.find({ replyId: targetAuthor, isRead: 0 })
       .limit(limit)
       .skip(skip * limit)
       .sort({ created: -1 });
