@@ -705,6 +705,60 @@ class ContentController {
     };
   }
 
+  // 获取未读的评论列表
+  async getUnReadCommentList(ctx) {
+    let { skip, limit } = ctx.query;
+    skip = Number(skip) || 0;
+    limit = Number(limit) || 20;
+    const targetAuthor = ctx.usernumber;
+
+    const res = await CommentModel.find({ targetAuthor, isRead: 0 })
+      .limit(limit)
+      .skip(skip * limit)
+      .sort({ created: -1 });
+
+    // 查询拓展信息
+    for (let i = 0; i < res.length; i++) {
+      // // 将 isRead 设置为 1（已读）
+      // res[i].isRead = 1;
+      // await res[i].save();
+
+      let temp = (res[i] = res[i].toObject()),
+        content = "";
+
+      // 查询评论的内容（文章展示标题）
+      if (temp.type === 0) {
+        content = await ArticleModel.findOne(
+          { articleId: temp.targetId },
+          "-_id title"
+        );
+      } else if (temp.type === 1) {
+        content = await CommentModel.findOne(
+          { commentId: temp.targetId },
+          "-_id content"
+        );
+      }
+
+      // 查询作者信息
+      let authorObj = await UserModel.findOne(
+        { usernumber: temp.authorId },
+        "usernumber name pic title"
+      );
+
+      temp.reply = temp.content;
+      temp.content = content.title || content.content;
+      temp.authorObj = authorObj;
+    }
+
+    // // 清除当前 点赞 的提醒数量
+    // emitLike(targetAuthor);
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
   // 设置已读
   async setIsRead(ctx) {
     const { type, id, unRead = false } = ctx.query;

@@ -61,6 +61,9 @@ router.get("/delReport", contentController.delReport);
 // 获取未读的点赞列表
 router.get("/getUnReadLikeList", contentController.getUnReadLikeList);
 
+// 获取未读的评论列表
+router.get("/getUnReadCommentList", contentController.getUnReadCommentList);
+
 // 设置已读
 router.get("/setIsRead", contentController.setIsRead);
 
