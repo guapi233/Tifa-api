@@ -31,7 +31,6 @@ const {
 } = require("../model/Report");
 const { emitLike, emitComment, emitFollow } = require("../utils/socket");
 const { FollowModel } = require("../model/Follow");
-const { connect } = require("mongoose");
 
 class ContentController {
   // 添加评论信息
@@ -773,6 +772,37 @@ class ContentController {
 
     // // 清除当前 点赞 的提醒数量
     // emitLike(targetAuthor);
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 获取未读的关注列表
+  async getUnReadFollowList(ctx) {
+    let { skip, limit } = ctx.query;
+    skip = Number(skip) || 0;
+    limit = Number(limit) || 20;
+    const targetId = ctx.usernumber;
+
+    const res = await FollowModel.find({ targetId, isRead: 0 })
+      .limit(limit)
+      .skip(skip * limit)
+      .sort({ created: -1 });
+
+    // 查询拓展信息
+    for (let i = 0; i < res.length; i++) {
+      let temp = (res[i] = res[i].toObject());
+
+      // 查询作者信息
+      let authorObj = await UserModel.findOne(
+        { usernumber: temp.authorId },
+        "usernumber name pic title"
+      );
+
+      temp.authorObj = authorObj;
+    }
 
     ctx.body = {
       isOk: 1,
