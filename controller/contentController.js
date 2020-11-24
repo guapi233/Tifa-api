@@ -29,7 +29,8 @@ const {
   existReport,
   getReportDetail,
 } = require("../model/Report");
-const { emitLike, emitComment } = require("../utils/socket");
+const { emitLike, emitComment, emitFollow } = require("../utils/socket");
+const { FollowModel } = require("../model/Follow");
 
 class ContentController {
   // 添加评论信息
@@ -653,11 +654,22 @@ class ContentController {
 
   // 获取未读的点赞列表
   async getUnReadLikeList(ctx) {
+    let { skip, limit } = ctx.query;
+    skip = Number(skip) || 0;
+    limit = Number(limit) || 20;
     const targetAuthor = ctx.usernumber;
-    const res = await LikeModel.find({ targetAuthor, isRead: 0 });
+
+    const res = await LikeModel.find({ targetAuthor, isRead: 0 })
+      .limit(limit)
+      .skip(skip * limit)
+      .sort({ created: -1 });
 
     // 查询拓展信息
     for (let i = 0; i < res.length; i++) {
+      // // 将 isRead 设置为 1（已读）
+      // res[i].isRead = 1;
+      // await res[i].save();
+
       let temp = (res[i] = res[i].toObject()),
         content = "";
 
@@ -674,12 +686,49 @@ class ContentController {
         );
       }
 
+      // 查询作者信息
+      let authorObj = await UserModel.findOne(
+        { usernumber: temp.authorId },
+        "usernumber name pic title"
+      );
+
       temp.content = content.title || content.content;
+      temp.authorObj = authorObj;
     }
+
+    // // 清除当前 点赞 的提醒数量
+    // emitLike(targetAuthor);
 
     ctx.body = {
       isOk: 1,
       data: res,
+    };
+  }
+
+  // 设置已读
+  async setIsRead(ctx) {
+    const { type, id, unRead = false } = ctx.query;
+    const targetAuthor = ctx.usernumber;
+
+    // 0为点赞、1为评论、2为关注
+    const Models = [LikeModel, CommentModel, FollowModel],
+      idNames = ["likeId", "commentId", "followId"],
+      emitFns = [emitLike, emitComment, emitFollow];
+
+    // 组件更新条件对象
+    const selectObj = { targetAuthor };
+    id && (selectObj[idNames[type]] = id);
+    const updateObj = { isRead: 1 };
+    unRead && (updateObj.isRead = 0);
+
+    await Models[type].updateMany(selectObj, updateObj);
+
+    // 更新提醒
+    emitFns[type](targetAuthor);
+
+    ctx.body = {
+      isOk: 1,
+      data: unRead ? "取消已读" : "成功设置已读",
     };
   }
 }
