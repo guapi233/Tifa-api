@@ -72,6 +72,18 @@ const getLikes = async (targetId, limit = 3) => {
   return res;
 };
 
+const getUnReaders = async (targetAuthor, count = false) => {
+  let res = null;
+
+  if (count) {
+    res = await LikeModel.find({ targetAuthor, isRead: 0 }).countDocuments();
+  } else {
+    res = await LikeModel.find({ targetAuthor, isRead: 0 });
+  }
+
+  return res;
+};
+
 /**
  * 查看用户是否点赞
  * @param {String} targetId 目标Id
@@ -92,4 +104,5 @@ module.exports = {
   delLike,
   getLikes,
   isLiked,
+  getUnReaders,
 };
