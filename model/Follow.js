@@ -77,6 +77,23 @@ const getFollowedList = async (targetId, limit, skip) => {
   return res;
 };
 
+/**
+ * 获取未读的关注信息
+ * @param {*} targetId 关注对象的作者Id
+ * @param {*} count 是否只获取数量（默认false）
+ */
+const getUnReaders = async (targetId, count) => {
+  let res = null;
+
+  if (count) {
+    res = await FollowModel.find({ targetId, isRead: 0 }).countDocuments();
+  } else {
+    res = await FollowModel.find({ targetId, isRead: 0 });
+  }
+
+  return res;
+};
+
 module.exports = {
   FollowModel,
   newFollow,
@@ -84,4 +101,5 @@ module.exports = {
   isFollowed,
   getFollowList,
   getFollowedList,
+  getUnReaders,
 };
