@@ -745,9 +745,13 @@ class ContentController {
         "usernumber name pic title"
       );
 
+      // 查询是否对当前评论点过赞
+      let liked = await isLiked(temp.commentId, targetAuthor);
+
       temp.reply = temp.content;
       temp.content = content.title || content.content;
       temp.authorObj = authorObj;
+      temp.isLiked = Number(liked);
     }
 
     // // 清除当前 点赞 的提醒数量
