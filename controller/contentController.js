@@ -42,7 +42,7 @@ class ContentController {
       content,
       type,
       targetType,
-      secondLevelCommentId,
+      secondLevelCommentId = "",
     } = ctx.request.body;
 
     // 1. 校验信息
@@ -153,6 +153,7 @@ class ContentController {
       targetAuthor: target.author || target.authorId,
       content,
       type,
+      replySec: secondLevelCommentId,
     });
 
     // 推送提醒
@@ -734,8 +735,10 @@ class ContentController {
           "-_id title"
         );
       } else if (temp.type === 1) {
+        const commentId = temp.replySec || temp.targetId;
+
         content = await CommentModel.findOne(
-          { commentId: temp.targetId },
+          { commentId },
           "-_id content commentId type"
         );
       }
