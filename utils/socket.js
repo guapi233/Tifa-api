@@ -1,6 +1,7 @@
 let io = require("socket.io");
 const { getJwtPaload, isOverdue } = require("./index");
-const { getUnReaders } = require("../model/Like");
+const { getUnReaders: getUnreadLikes } = require("../model/Like");
+const { getUnReaders: getUnreadComments } = require("../model/Comment");
 
 const socketify = (server) => {
   io = io(server, {
@@ -13,6 +14,7 @@ const socketify = (server) => {
 module.exports = {
   socketify,
   emitLike,
+  emitComment,
 };
 
 const userList = {};
@@ -49,18 +51,28 @@ function disconnect() {
 async function emitLike(uid) {
   const socket = userList[uid];
 
-  let res = await getUnReaders(uid, true);
+  let res = await getUnreadLikes(uid, true);
 
   emitNewMes(socket, "like", res);
+}
+// 推送评论更新消息
+async function emitComment(uid) {
+  const socket = userList[uid];
+
+  let res = await getUnreadComments(uid, true);
+
+  emitNewMes(socket, "comment", res);
 }
 // 查询当前全部未读的消息
 async function emitAll(uid) {
   const socket = userList[uid];
 
-  let like = await getUnReaders(uid, true);
+  let like = await getUnreadLikes(uid, true);
+  let comment = await getUnreadComments(uid, true);
 
   emitNewMes(socket, "all", {
     like,
+    comment,
   });
 }
 
