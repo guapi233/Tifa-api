@@ -13,6 +13,10 @@ const CommentSchema = new Schema({
   },
   targetId: String,
   replyId: String,
+  replySec: {
+    type: String,
+    default: "",
+  },
   authorId: String,
   created: {
     type: Date,
@@ -73,16 +77,16 @@ const newComment = async (commentObj) => {
 
 /**
  * 获取未读的评论列表
- * @param {*} targetAuthor 评论对象的作者Id
+ * @param {*} replyId 评论对象的作者Id
  * @param {*} count 是否只获取数量（默认false）
  */
-const getUnReaders = async (targetAuthor, count) => {
+const getUnReaders = async (replyId, count) => {
   let res = null;
 
   if (count) {
-    res = await CommentModel.find({ targetAuthor, isRead: 0 }).countDocuments();
+    res = await CommentModel.find({ replyId, isRead: 0 }).countDocuments();
   } else {
-    res = await CommentModel.find({ targetAuthor, isRead: 0 });
+    res = await CommentModel.find({ replyId, isRead: 0 });
   }
 
   return res;
