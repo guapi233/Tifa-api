@@ -813,15 +813,17 @@ class ContentController {
   // 设置已读
   async setIsRead(ctx) {
     const { type, id, unRead = false } = ctx.query;
-    const replyId = ctx.usernumber;
+    const uid = ctx.usernumber;
 
     // 0为点赞、1为评论、2为关注
     const Models = [LikeModel, CommentModel, FollowModel],
       idNames = ["likeId", "commentId", "followId"],
-      emitFns = [emitLike, emitComment, emitFollow];
+      emitFns = [emitLike, emitComment, emitFollow],
+      targetIds = ["targetAuthor", "replyId", "targetId"];
 
     // 组件更新条件对象
-    const selectObj = { replyId };
+    const selectObj = {};
+    type && (selectObj[targetIds[type]] = uid);
     id && (selectObj[idNames[type]] = id);
     const updateObj = { isRead: 1 };
     unRead && (updateObj.isRead = 0);
@@ -829,7 +831,7 @@ class ContentController {
     await Models[type].updateMany(selectObj, updateObj);
 
     // 更新提醒
-    emitFns[type](replyId);
+    emitFns[type](uid);
 
     ctx.body = {
       isOk: 1,
