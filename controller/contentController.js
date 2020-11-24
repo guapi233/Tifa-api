@@ -29,6 +29,7 @@ const {
   existReport,
   getReportDetail,
 } = require("../model/Report");
+const { emitLike } = require("../utils/socket");
 
 class ContentController {
   // 添加评论信息
@@ -244,6 +245,9 @@ class ContentController {
       //     },
       //   }
       // );
+
+      // 发起提醒
+      emitLike(res.targetAuthor);
     }
 
     // 4. 按照 操作3 返回对应的格式
