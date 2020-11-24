@@ -31,6 +31,7 @@ const {
 } = require("../model/Report");
 const { emitLike, emitComment, emitFollow } = require("../utils/socket");
 const { FollowModel } = require("../model/Follow");
+const { connect } = require("mongoose");
 
 class ContentController {
   // 添加评论信息
@@ -735,12 +736,21 @@ class ContentController {
           "-_id title"
         );
       } else if (temp.type === 1) {
+        // 查找评论对象的内容
         const commentId = temp.replySec || temp.targetId;
 
-        content = await CommentModel.findOne(
-          { commentId },
-          "-_id content commentId type"
+        content = await CommentModel.findOne({ commentId }, "-_id content");
+
+        // 查找评论所属的类型和id
+        let res = await CommentModel.findOne(
+          { commentId: temp.targetId },
+          "-_id commentId type"
         );
+
+        res = res || {};
+
+        content.commentId = res.commentId;
+        content.type = res.type;
       }
 
       // 查询作者信息
@@ -773,7 +783,7 @@ class ContentController {
   // 设置已读
   async setIsRead(ctx) {
     const { type, id, unRead = false } = ctx.query;
-    const targetAuthor = ctx.usernumber;
+    const replyId = ctx.usernumber;
 
     // 0为点赞、1为评论、2为关注
     const Models = [LikeModel, CommentModel, FollowModel],
@@ -781,7 +791,7 @@ class ContentController {
       emitFns = [emitLike, emitComment, emitFollow];
 
     // 组件更新条件对象
-    const selectObj = { targetAuthor };
+    const selectObj = { replyId };
     id && (selectObj[idNames[type]] = id);
     const updateObj = { isRead: 1 };
     unRead && (updateObj.isRead = 0);
@@ -789,7 +799,7 @@ class ContentController {
     await Models[type].updateMany(selectObj, updateObj);
 
     // 更新提醒
-    emitFns[type](targetAuthor);
+    emitFns[type](replyId);
 
     ctx.body = {
       isOk: 1,
