@@ -60,15 +60,36 @@ const newComment = async (commentObj) => {
   newer = newer.toObject();
   newer.author = await UserModel.findOne(
     { usernumber: newer.authorId },
-    "usernumber name pic title"
+    "usernumber name pic title targetAuthor"
   );
+
+  // 将新评论的 children 置为空
+  newer.children = [];
 
   // 当前文章/回复的评论数量 + 1 （由前端来做）
 
   return newer;
 };
 
+/**
+ * 获取未读的评论列表
+ * @param {*} targetAuthor 评论对象的作者Id
+ * @param {*} count 是否只获取数量（默认false）
+ */
+const getUnReaders = async (targetAuthor, count) => {
+  let res = null;
+
+  if (count) {
+    res = await CommentModel.find({ targetAuthor, isRead: 0 }).countDocuments();
+  } else {
+    res = await CommentModel.find({ targetAuthor, isRead: 0 });
+  }
+
+  return res;
+};
+
 module.exports = {
   CommentModel,
   newComment,
+  getUnReaders,
 };
