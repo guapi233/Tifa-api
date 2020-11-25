@@ -108,7 +108,7 @@ class LoginController {
     }
 
     // 3. 创建用户
-    const userInfo = newUser({
+    const userInfo = await newUser({
       usernumber,
       password: bcrypt.hashSync(password, 5),
     });
