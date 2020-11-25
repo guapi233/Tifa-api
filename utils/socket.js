@@ -52,7 +52,7 @@ function disconnect() {
   delete userList[this.uid];
 }
 // 推送点赞更新消息
-async function emitLike(uid) {
+async function emitLike(uid, count = 1) {
   const socket = userList[uid];
 
   if (!socket) return;
@@ -60,10 +60,10 @@ async function emitLike(uid) {
   // let res = await getUnreadLikes(uid, true);
   // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
 
-  emitNewMes(socket, "like", 1);
+  emitNewMes(socket, "like", count);
 }
 // 推送评论更新消息
-async function emitComment(uid) {
+async function emitComment(uid, count = 1) {
   const socket = userList[uid];
 
   if (!socket) return;
@@ -71,10 +71,10 @@ async function emitComment(uid) {
   // let res = await getUnreadComments(uid, true);
   // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
 
-  emitNewMes(socket, "comment", 1);
+  emitNewMes(socket, "comment", count);
 }
 // 推送关注更新消息
-async function emitFollow(uid) {
+async function emitFollow(uid, count = 1) {
   const socket = userList[uid];
 
   if (!socket) return;
@@ -82,12 +82,12 @@ async function emitFollow(uid) {
   // let res = await getUnreadFollows(uid, true);
   // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
 
-  emitNewMes(socket, "follow", 1);
+  emitNewMes(socket, "follow", count);
 }
 // 推送系统通知（管理员）
-async function emitSystem(uid) {
+async function emitSystem(uid, count = 1) {
   // uid存在则向指定用户推送通知，不存在则传给全部用户
-  const socket = uid ? userList[uid] : userList[userList.keys()[0]];
+  const socket = uid ? userList[uid] : userList[Object.keys(userList)[0]];
 
   if (!socket) return;
 
@@ -95,7 +95,7 @@ async function emitSystem(uid) {
   // noop
 
   if (uid) {
-    emitNewMes(socket, "system", 1);
+    emitNewMes(socket, "system", count);
   } else {
     castNewMes(socket, {
       type: "system",
