@@ -74,6 +74,6 @@ router.get("/setIsRead", contentController.setIsRead);
 router.post("/addSystemMes", contentController.addSystemMes);
 
 // 获取未读的系统通知
-router.get("/getUnReadSystemMesList", contentController.getUnReadSystemMesList);
+router.get("/getSystemMesList", contentController.getSystemMesList);
 
 module.exports = router;

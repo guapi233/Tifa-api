@@ -903,8 +903,8 @@ class ContentController {
     };
   }
 
-  // 获取未读的系统通知
-  async getUnReadSystemMesList(ctx) {
+  // 获取全部的系统通知
+  async getSystemMesList(ctx) {
     let { skip, limit } = ctx.query;
     skip = Number(skip) || 0;
     limit = Number(limit) || 20;
@@ -915,7 +915,6 @@ class ContentController {
       { usernumber },
       "-_id systemCount"
     );
-    console.log(readerNumber, readerNumber.systemCount, typeof readerNumber);
 
     try {
       readerNumber = readerNumber.systemCount || 0;
@@ -924,11 +923,21 @@ class ContentController {
       readerNumber = 0;
     }
 
-    // 根据用户读取的数量，查询大于该数（比该通知更新）的通知
-    let systems = await SystemModel.find({ systemId: { $gt: readerNumber } })
+    // 读取指定的通知
+    let systems = await SystemModel.find()
       .skip(skip * limit)
       .limit(limit)
       .sort({ created: -1 });
+
+    // 根据用户阅读的数量，来判断对于该用户的 新通知
+    systems = systems.map((system) => {
+      system = system.toObject();
+      if (system.systemId > readerNumber) {
+        system.isNew = 1;
+      }
+
+      return system;
+    });
 
     ctx.body = {
       isOk: 1,
