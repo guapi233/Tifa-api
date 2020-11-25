@@ -47,6 +47,15 @@ const newSystemMes = async (systemObj, authorId) => {
 };
 
 /**
+ * 获取全部的系统通知数量
+ */
+const getSystemMesCount = async () => {
+  const res = await SystemModel.find().countDocuments();
+
+  return res;
+};
+
+/**
  * 查询未读的系统通知数量
  * @param {*} targetId 查询用户Id
  */
@@ -73,4 +82,5 @@ module.exports = {
   SystemModel,
   newSystemMes,
   getUnReaders,
+  getSystemMesCount,
 };
