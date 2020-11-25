@@ -37,7 +37,6 @@ const {
 } = require("../utils/socket");
 const { FollowModel } = require("../model/Follow");
 const { SystemModel, newSystemMes } = require("../model/System");
-const User = require("../model/User");
 
 class ContentController {
   // 添加评论信息
@@ -824,10 +823,24 @@ class ContentController {
 
     // 3为系统通知
     if (type == 3) {
+      // 查询用户原本阅读的 系统通知 数量，用于计算应该减去多少通知
+      let oldCount = await UserModel.findOne(
+        { usernumber: uid },
+        "systemCount"
+      );
+      try {
+        oldCount = oldCount.systemCount || 0;
+      } catch (err) {
+        oldCount = 0;
+      }
+
       let res = await UserModel.updateOne(
         { usernumber: uid },
         { systemCount: id }
       );
+
+      // 更新通知
+      res.n && emitSystem(uid, oldCount - id);
 
       return (ctx.body = {
         isOk: res.n,
@@ -851,7 +864,7 @@ class ContentController {
     await Models[type].updateMany(selectObj, updateObj);
 
     // 更新提醒
-    emitFns[type](uid);
+    emitFns[type](uid, -1);
 
     ctx.body = {
       isOk: 1,
@@ -902,9 +915,12 @@ class ContentController {
       { usernumber },
       "-_id systemCount"
     );
+    console.log(readerNumber, readerNumber.systemCount, typeof readerNumber);
+
     try {
       readerNumber = readerNumber.systemCount || 0;
     } catch (err) {
+      console.log(err);
       readerNumber = 0;
     }
 
