@@ -86,6 +86,7 @@ async function emitFollow(uid, count = 1) {
 }
 // 推送系统通知（管理员）
 async function emitSystem(uid, count = 1) {
+  uid = uid === "*" ? "" : uid;
   // uid存在则向指定用户推送通知，不存在则传给全部用户
   const socket = uid ? userList[uid] : userList[Object.keys(userList)[0]];
 
