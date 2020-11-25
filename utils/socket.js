@@ -3,6 +3,7 @@ const { getJwtPaload, isOverdue } = require("./index");
 const { getUnReaders: getUnreadLikes } = require("../model/Like");
 const { getUnReaders: getUnreadComments } = require("../model/Comment");
 const { getUnReaders: getUnreadFollows } = require("../model/Follow");
+const { getUnReaders: getUnreadSystems } = require("../model/System");
 
 const socketify = (server) => {
   io = io(server, {
@@ -17,6 +18,7 @@ module.exports = {
   emitLike,
   emitComment,
   emitFollow,
+  emitSystem,
 };
 
 const userList = {};
@@ -53,25 +55,54 @@ function disconnect() {
 async function emitLike(uid) {
   const socket = userList[uid];
 
-  let res = await getUnreadLikes(uid, true);
+  if (!socket) return;
 
-  emitNewMes(socket, "like", res);
+  // let res = await getUnreadLikes(uid, true);
+  // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
+
+  emitNewMes(socket, "like", 1);
 }
 // 推送评论更新消息
 async function emitComment(uid) {
   const socket = userList[uid];
 
-  let res = await getUnreadComments(uid, true);
+  if (!socket) return;
 
-  emitNewMes(socket, "comment", res);
+  // let res = await getUnreadComments(uid, true);
+  // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
+
+  emitNewMes(socket, "comment", 1);
 }
 // 推送关注更新消息
 async function emitFollow(uid) {
   const socket = userList[uid];
 
-  let res = await getUnreadFollows(uid, true);
+  if (!socket) return;
 
-  emitNewMes(socket, "follow", res);
+  // let res = await getUnreadFollows(uid, true);
+  // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
+
+  emitNewMes(socket, "follow", 1);
+}
+// 推送系统通知（管理员）
+async function emitSystem(uid) {
+  // uid存在则向指定用户推送通知，不存在则传给全部用户
+  const socket = uid ? userList[uid] : userList[userList.keys()[0]];
+
+  if (!socket) return;
+
+  // 查询未读信息
+  // noop
+
+  if (uid) {
+    emitNewMes(socket, "system", 1);
+  } else {
+    castNewMes(socket, {
+      type: "system",
+      data: 1,
+      includeSelf: true,
+    });
+  }
 }
 // 查询当前全部未读的消息
 async function emitAll(uid) {
@@ -80,11 +111,13 @@ async function emitAll(uid) {
   let like = await getUnreadLikes(uid, true);
   let comment = await getUnreadComments(uid, true);
   let follow = await getUnreadFollows(uid, true);
+  let system = await getUnreadSystems(uid);
 
   emitNewMes(socket, "all", {
     like,
     comment,
     follow,
+    system,
   });
 }
 
@@ -94,6 +127,23 @@ function emitNewMes(socket, type, data) {
     type,
     data,
   });
+}
+// broadcast new message
+function castNewMes(socket, { type, data, to = "", includeSelf = false }) {
+  if (to) {
+    socket.broadcast.to(to).emit("hasNewMes", {
+      type,
+      data,
+    });
+  } else {
+    socket.broadcast.emit("hasNewMes", {
+      type,
+      data,
+    });
+  }
+
+  // 要不要给自己发一下
+  includeSelf && socket.emit("hasNewMes", { type, data });
 }
 // 返回失败数据
 function fail(socket, key, data) {
