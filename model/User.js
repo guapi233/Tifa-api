@@ -57,6 +57,7 @@ const UserSchema = new Schema({
     type: String,
     default: "",
   },
+  systemCount: Number,
 });
 
 const UserModel = mongoose.model("users", UserSchema);
@@ -83,9 +84,13 @@ const userIsExist = (requirement) => {
  * @returns {Object} 用户信息
  */
 const newUser = async (userInfoObj) => {
+  // 系统通知数量
+  const systemCount = await getSystemMesCount();
+  console.log(systemCount, "??");
   let newer = new UserModel({
     ...userInfoObj,
     created: Date.now(),
+    systemCount,
   });
   let res = await newer.save();
 
@@ -100,3 +105,5 @@ module.exports = {
   userIsExist,
   newUser,
 };
+
+const { getSystemMesCount } = require("../model/System");
