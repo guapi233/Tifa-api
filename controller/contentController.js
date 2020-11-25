@@ -36,7 +36,11 @@ const {
   emitSystem,
 } = require("../utils/socket");
 const { FollowModel } = require("../model/Follow");
-const { SystemModel, newSystemMes } = require("../model/System");
+const {
+  SystemModel,
+  newSystemMes,
+  getUnReaders: getUnReadSystems,
+} = require("../model/System");
 
 class ContentController {
   // 添加评论信息
@@ -823,16 +827,8 @@ class ContentController {
 
     // 3为系统通知
     if (type == 3) {
-      // 查询用户原本阅读的 系统通知 数量，用于计算应该减去多少通知
-      let oldCount = await UserModel.findOne(
-        { usernumber: uid },
-        "systemCount"
-      );
-      try {
-        oldCount = oldCount.systemCount || 0;
-      } catch (err) {
-        oldCount = 0;
-      }
+      // 能阅读到的新通知数量，在下方减去这个数量的通知
+      let newCount = await getUnReadSystems(uid);
 
       let res = await UserModel.updateOne(
         { usernumber: uid },
@@ -840,7 +836,7 @@ class ContentController {
       );
 
       // 更新通知
-      res.n && emitSystem(uid, oldCount - id);
+      res.n && emitSystem(uid, -newCount);
 
       return (ctx.body = {
         isOk: res.n,
@@ -874,7 +870,7 @@ class ContentController {
 
   // 推送系统通知（管理员）
   async addSystemMes(ctx) {
-    const { targetId, title, content } = ctx.request.body;
+    let { targetId, title, content } = ctx.request.body;
     targetId = targetId || "*";
     if (!title || !content) {
       return (ctx.body = {
@@ -897,7 +893,7 @@ class ContentController {
     }
 
     // 全体推送消息
-    emitSystem();
+    emitSystem(targetId);
 
     ctx.body = {
       isOk: 1,
@@ -912,21 +908,28 @@ class ContentController {
     limit = Number(limit) || 20;
     const usernumber = ctx.usernumber;
 
-    // 读取用户最新阅读的通知
-    let readerNumber = await UserModel.findOne(
-      { usernumber },
-      "-_id systemCount created"
-    );
-
-    try {
-      readerNumber = readerNumber.systemCount || 0;
-    } catch (err) {
-      console.log(err);
-      readerNumber = 0;
+    // 读取用户的创建时间和阅读的数量，用来判断应该展示哪些通知 和 哪些通知为新通知
+    let userInfo = await UserModel.findOne(
+        { usernumber },
+        "-_id systemCount created"
+      ),
+      readerNumber = 0,
+      userCreated = 0;
+    if (!userInfo) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "操作错误",
+      });
     }
 
+    readerNumber = userInfo.systemCount;
+    userCreated = userInfo.created;
+
     // 读取指定的通知
-    let systems = await SystemModel.find()
+    let systems = await SystemModel.find({
+      created: { $gt: userCreated },
+      targetId: { $in: ["*", usernumber] },
+    })
       .skip(skip * limit)
       .limit(limit)
       .sort({ created: -1 });
