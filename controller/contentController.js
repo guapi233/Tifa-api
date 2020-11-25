@@ -875,6 +875,7 @@ class ContentController {
   // 推送系统通知（管理员）
   async addSystemMes(ctx) {
     const { targetId, title, content } = ctx.request.body;
+    targetId = targetId || "*";
     if (!title || !content) {
       return (ctx.body = {
         isOk: 0,
@@ -884,6 +885,7 @@ class ContentController {
 
     // 新建通知
     let newer = await newSystemMes({
+      targetId,
       title,
       content,
     });
@@ -913,7 +915,7 @@ class ContentController {
     // 读取用户最新阅读的通知
     let readerNumber = await UserModel.findOne(
       { usernumber },
-      "-_id systemCount"
+      "-_id systemCount created"
     );
 
     try {
