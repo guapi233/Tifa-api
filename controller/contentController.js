@@ -29,8 +29,15 @@ const {
   existReport,
   getReportDetail,
 } = require("../model/Report");
-const { emitLike, emitComment, emitFollow } = require("../utils/socket");
+const {
+  emitLike,
+  emitComment,
+  emitFollow,
+  emitSystem,
+} = require("../utils/socket");
 const { FollowModel } = require("../model/Follow");
+const { SystemModel, newSystemMes } = require("../model/System");
+const User = require("../model/User");
 
 class ContentController {
   // 添加评论信息
@@ -815,6 +822,19 @@ class ContentController {
     const { type, id, unRead = false } = ctx.query;
     const uid = ctx.usernumber;
 
+    // 3为系统通知
+    if (type == 3) {
+      let res = await UserModel.updateOne(
+        { usernumber: uid },
+        { systemCount: id }
+      );
+
+      return (ctx.body = {
+        isOk: res.n,
+        data: res.n ? "成功设置已读" : "设置失败",
+      });
+    }
+
     // 0为点赞、1为评论、2为关注
     const Models = [LikeModel, CommentModel, FollowModel],
       idNames = ["likeId", "commentId", "followId"],
@@ -836,6 +856,67 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: unRead ? "取消已读" : "成功设置已读",
+    };
+  }
+
+  // 推送系统通知（管理员）
+  async addSystemMes(ctx) {
+    const { targetId, title, content } = ctx.request.body;
+    if (!title || !content) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "缺少必要的参数",
+      });
+    }
+
+    // 新建通知
+    let newer = await newSystemMes({
+      title,
+      content,
+    });
+    if (!newer) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "推送失败",
+      });
+    }
+
+    // 全体推送消息
+    emitSystem();
+
+    ctx.body = {
+      isOk: 1,
+      data: newer,
+    };
+  }
+
+  // 获取未读的系统通知
+  async getUnReadSystemMesList(ctx) {
+    let { skip, limit } = ctx.query;
+    skip = Number(skip) || 0;
+    limit = Number(limit) || 20;
+    const usernumber = ctx.usernumber;
+
+    // 读取用户最新阅读的通知
+    let readerNumber = await UserModel.findOne(
+      { usernumber },
+      "-_id systemCount"
+    );
+    try {
+      readerNumber = readerNumber.systemCount || 0;
+    } catch (err) {
+      readerNumber = 0;
+    }
+
+    // 根据用户读取的数量，查询大于该数（比该通知更新）的通知
+    let systems = await SystemModel.find({ systemId: { $gt: readerNumber } })
+      .skip(skip * limit)
+      .limit(limit)
+      .sort({ created: -1 });
+
+    ctx.body = {
+      isOk: 1,
+      data: systems,
     };
   }
 }

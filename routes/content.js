@@ -70,4 +70,10 @@ router.get("/getUnReadFollowList", contentController.getUnReadFollowList);
 // 设置已读
 router.get("/setIsRead", contentController.setIsRead);
 
+// 推送系统通知（管理员）
+router.post("/addSystemMes", contentController.addSystemMes);
+
+// 获取未读的系统通知
+router.get("/getUnReadSystemMesList", contentController.getUnReadSystemMesList);
+
 module.exports = router;
