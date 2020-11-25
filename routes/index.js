@@ -7,8 +7,6 @@ router.get("/", async (ctx, next) => {
 
 // 上传图片
 router.post("/uploadImg", async (ctx, next) => {
-  console.log(ctx.request.files);
-
   let { path } = ctx.request.files.file;
 
   // 解析图片路径
