@@ -20,6 +20,16 @@ const SystemSchema = new Schema({
 const SystemModel = mongoose.model("systems", SystemSchema);
 
 /**
+ * 获取全部的系统通知数量
+ * @param {Array} targetIds 通知对象（数组）
+ */
+const getSystemMesCount = async () => {
+  const res = await SystemModel.find().countDocuments();
+
+  return res;
+};
+
+/**
  * 新建一条系统通知
  * @param {*} systemObj 通知信息对象
  */
@@ -27,7 +37,7 @@ const newSystemMes = async (systemObj, authorId) => {
   // 校验 authorId 是否为管理员
 
   // 查询当前系统通知的数量，+1后作为当前的systemId
-  let systemId = await SystemModel.find().countDocuments();
+  let systemId = await getSystemMesCount();
   systemId++;
 
   let newer = new SystemModel({
@@ -44,15 +54,6 @@ const newSystemMes = async (systemObj, authorId) => {
   }
 
   return newer.toObject();
-};
-
-/**
- * 获取全部的系统通知数量
- */
-const getSystemMesCount = async () => {
-  const res = await SystemModel.find().countDocuments();
-
-  return res;
 };
 
 /**
@@ -73,6 +74,7 @@ const getUnReaders = async (usernumber) => {
 
   let systems = await SystemModel.find({
     systemId: { $gt: readerNumber },
+    targetId: { $in: ["*", usernumber] },
   }).countDocuments();
 
   return systems;

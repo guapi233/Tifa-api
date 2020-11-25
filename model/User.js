@@ -86,7 +86,7 @@ const userIsExist = (requirement) => {
 const newUser = async (userInfoObj) => {
   // 系统通知数量
   const systemCount = await getSystemMesCount();
-  console.log(systemCount, "??");
+
   let newer = new UserModel({
     ...userInfoObj,
     created: Date.now(),
