@@ -12,7 +12,10 @@ const WhisperSchema = new Schema({
   },
   roomId: String,
   authorId: String,
-  show: Array,
+  hidden: {
+    type: Array,
+    default: [],
+  },
   content: String,
   created: Date,
   type: Number,
