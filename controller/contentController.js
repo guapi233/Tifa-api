@@ -992,10 +992,17 @@ class ContentController {
   // 查询私信
   async getWhisperList(ctx) {
     let { roomId, skip, limit } = ctx.query;
+    const self = ctx.usernumber;
     skip = Number(skip) || 0;
     limit = Number(limit) || 20;
 
-    let res = await WhisperModel.find({ roomId })
+    let res = await WhisperModel.find(
+      {
+        roomId,
+        hidden: { $nin: self },
+      },
+      "-hidden -_id"
+    )
       .skip(skip * limit)
       .limit(limit)
       .sort({ created: -1 });
@@ -1047,7 +1054,10 @@ class ContentController {
         { usernumber: temp.oppositeId },
         "usernumber name pic"
       );
-      temp.lastMsg = await WhisperModel.findOne({ roomId: temp.roomId }).sort({
+      temp.lastMsg = await WhisperModel.findOne({
+        roomId: temp.roomId,
+        hidden: { $nin: belongId },
+      }).sort({
         created: -1,
       });
     }
