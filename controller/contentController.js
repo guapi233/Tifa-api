@@ -1008,6 +1008,17 @@ class ContentController {
       .sort({ created: -1 });
     res = res.reverse();
 
+    // 附加信息操作
+    for (let i = 0; i < res.length; i++) {
+      let temp = (res[i] = res[i].toObject());
+
+      // 替换已经撤回消息的内容
+      if (!temp.status) {
+        temp.content =
+          temp.authorId === self ? "您撤回了一条消息" : "对方撤回了一条消息";
+      }
+    }
+
     ctx.body = {
       isOk: 1,
       data: res,
