@@ -41,6 +41,8 @@ const {
   newSystemMes,
   getUnReaders: getUnReadSystems,
 } = require("../model/System");
+const { RoomModel, newRoom } = require("../model/Room");
+const { WhisperModel, newWhisper } = require("../model/whisper");
 
 class ContentController {
   // 添加评论信息
@@ -947,6 +949,61 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: systems,
+    };
+  }
+
+  // 发送私信
+  async addWhisper(ctx) {
+    let { oppositeId, roomId, content, type } = ctx.request.body;
+    const belongId = ctx.usernumber;
+    type = Number(type) || 0;
+    if (!oppositeId || !content) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "缺少必要参数",
+      });
+    }
+
+    // 1. 判断有无房间存在，没有则创建
+    if (!roomId) {
+      let roomId2 = await RoomModel.findOne({ belongId, oppositeId });
+      if (roomId2 && roomId2.roomId) {
+        roomId = roomId2.roomId;
+      } else {
+        let res = await newRoom(belongId, oppositeId);
+        roomId = res.roomId;
+      }
+    }
+
+    // 2. 新建消息
+    let res = await newWhisper({
+      roomId,
+      authorId: belongId,
+      content,
+      type,
+    });
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 查询私信
+  async getWhisperList(ctx) {
+    let { roomId, skip, limit } = ctx.query;
+    skip = Number(skip) || 0;
+    limit = Number(limit) || 20;
+
+    let res = await WhisperModel.find({ roomId })
+      .skip(skip * limit)
+      .limit(limit)
+      .sort({ created: -1 });
+    res = res.reverse();
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
     };
   }
 }

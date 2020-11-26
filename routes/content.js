@@ -76,4 +76,10 @@ router.post("/addSystemMes", contentController.addSystemMes);
 // 获取未读的系统通知
 router.get("/getSystemMesList", contentController.getSystemMesList);
 
+// 发送私信
+router.post("/addWhisper", contentController.addWhisper);
+
+// 查询私信
+router.get("/getWhisperList", contentController.getWhisperList);
+
 module.exports = router;
