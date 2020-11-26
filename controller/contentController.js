@@ -957,7 +957,7 @@ class ContentController {
     let { oppositeId, roomId, content, type } = ctx.request.body;
     const belongId = ctx.usernumber;
     type = Number(type) || 0;
-    if (!oppositeId || !content) {
+    if (!content) {
       return (ctx.body = {
         isOk: 0,
         data: "缺少必要参数",
@@ -1000,6 +1000,44 @@ class ContentController {
       .limit(limit)
       .sort({ created: -1 });
     res = res.reverse();
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
+    };
+  }
+
+  // 创建新房间
+  async addRoom(ctx) {
+    const { belongId, oppositeId } = ctx.query;
+    let roomId = "";
+
+    // 1. 判断有无房间存在，没有则创建
+    let room = await RoomModel.findOne({ belongId, oppositeId });
+    if (room && room.roomId) {
+      roomId = room.roomId;
+    } else {
+      let res = await newRoom(belongId, oppositeId);
+      roomId = res.roomId;
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: roomId,
+    };
+  }
+
+  // 查询用户的私信房间
+  async getRoomList(ctx) {
+    let { skip, limit } = ctx.query;
+    skip = Number(skip) || 0;
+    limit = Number(limit) || 20;
+    const belongId = ctx.usernumber;
+
+    let res = await RoomModel.find({ belongId, show: 1 })
+      .skip(skip * limit)
+      .limit(limit)
+      .sort({ updated: -1 });
 
     ctx.body = {
       isOk: 1,

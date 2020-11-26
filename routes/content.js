@@ -82,4 +82,10 @@ router.post("/addWhisper", contentController.addWhisper);
 // 查询私信
 router.get("/getWhisperList", contentController.getWhisperList);
 
+// 创建私信房间（窗口）
+router.get("/addRoom", contentController.addRoom);
+
+// 查询私信窗口列表
+router.get("/getRoomList", contentController.getRoomList);
+
 module.exports = router;
