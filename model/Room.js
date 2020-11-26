@@ -16,6 +16,7 @@ const RoomSchema = new Schema({
     default: 0,
   },
   created: Date,
+  updated: Date,
 });
 
 const RoomModel = mongoose.model("rooms", RoomSchema);
@@ -33,6 +34,7 @@ const newRoom = async (belongId, oppositeId) => {
     belongId,
     oppositeId,
     created: Date.now(),
+    updated: Date.now(),
   });
 
   let oppo = new RoomModel({
@@ -52,7 +54,17 @@ const newRoom = async (belongId, oppositeId) => {
   }
 };
 
+/**
+ * 同步房间更新时间
+ * @param {*} roomId 房间Id
+ */
+const setUpdated = async (roomId) => {
+  const updated = Date.now();
+  await RoomModel.updateMany({ roomId }, { updated });
+};
+
 module.exports = {
   RoomModel,
   newRoom,
+  setUpdated,
 };
