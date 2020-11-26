@@ -1039,6 +1039,19 @@ class ContentController {
       .limit(limit)
       .sort({ updated: -1 });
 
+    // 查询附加信息
+    for (let i = 0; i < res.length; i++) {
+      let temp = (res[i] = res[i].toObject());
+
+      temp.opposite = await UserModel.findOne(
+        { usernumber: temp.oppositeId },
+        "usernumber name pic"
+      );
+      temp.lastMsg = await WhisperModel.findOne({ roomId: temp.roomId }).sort({
+        created: -1,
+      });
+    }
+
     ctx.body = {
       isOk: 1,
       data: res,
