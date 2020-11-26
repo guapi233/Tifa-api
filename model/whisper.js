@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { getUuid } = require("../utils/index");
+const { setUpdated } = require("./Room");
 
 const Schema = mongoose.Schema;
 
@@ -40,6 +41,7 @@ const newWhisper = async (whisperObj) => {
 
   try {
     await newer.save();
+    setUpdated(whisperObj.roomId);
 
     return newer.toObject();
   } catch (err) {
