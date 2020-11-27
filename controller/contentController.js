@@ -999,8 +999,8 @@ class ContentController {
     // 3. 通知对方
     emitWhisper(oppositeId, res);
 
-    // 4. 更新房间的 更新时间
-    await RoomModel.updateMany({ roomId }, { updated: Date.now() });
+    // 4. 更新房间的 更新时间 && 打开两边的房间
+    await RoomModel.updateMany({ roomId }, { updated: Date.now(), show: 1 });
 
     ctx.body = {
       isOk: 1,
@@ -1046,13 +1046,19 @@ class ContentController {
 
   // 创建新房间
   async addRoom(ctx) {
-    const { belongId, oppositeId } = ctx.query;
+    const { oppositeId } = ctx.query;
+    const belongId = ctx.usernumber;
     let roomId = "";
 
     // 1. 判断有无房间存在，没有则创建
     let room = await RoomModel.findOne({ belongId, oppositeId });
     if (room && room.roomId) {
       roomId = room.roomId;
+      // 如果房间处于关闭状态，打开自己的
+      if (!room.show) {
+        room.show = 1;
+        await room.save();
+      }
     } else {
       let res = await newRoom(belongId, oppositeId);
       roomId = res.roomId;
