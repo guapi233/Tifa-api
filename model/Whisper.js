@@ -16,7 +16,7 @@ const WhisperSchema = new Schema({
   authorId: String,
   isRead: {
     type: Number,
-    default: 1,
+    default: 0,
   },
   hidden: {
     type: Array,
@@ -54,8 +54,14 @@ const newWhisper = async (whisperObj) => {
   }
 };
 
-const getUnReaders = async (belongId) => {
-  let res = await WhisperModel.find({});
+const getUnReaders = async (targetId) => {
+  let res = await WhisperModel.find({
+    targetId,
+    isRead: 0,
+    status: 1,
+  }).countDocuments();
+
+  return res;
 };
 
 module.exports = {
