@@ -63,8 +63,24 @@ const setUpdated = async (roomId) => {
   await RoomModel.updateMany({ roomId }, { updated });
 };
 
+/**
+ * 开/管私信窗口
+ * @param {*} roomId 房间（窗口）Id
+ * @param {*} belongId 谁的
+ * @param {*} show 状态值（1开启、0关闭）
+ */
+const setRoomShow = async (roomId, belongId, show) => {
+  let res = await RoomModel.updateOne(
+    { roomId, belongId },
+    { show, updated: Date.now() }
+  );
+
+  return res.n;
+};
+
 module.exports = {
   RoomModel,
   newRoom,
   setUpdated,
+  setRoomShow,
 };
