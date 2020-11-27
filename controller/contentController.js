@@ -1109,18 +1109,18 @@ class ContentController {
     const { roomId, show } = ctx.query;
     const belongId = ctx.usernumber;
     if (!roomId || !show) {
-      return ctx.body = {
+      return (ctx.body = {
         isOk: 0,
-        data: "缺少必要参数"
-      };
+        data: "缺少必要参数",
+      });
     }
 
-    let res = await setRoomShow(roomId, belongId. show);
+    let res = await setRoomShow(roomId, belongId, show);
 
-    ctx.body {
+    ctx.body = {
       isOk: 1,
-      data: res
-    }
+      data: res,
+    };
   }
 }
 
