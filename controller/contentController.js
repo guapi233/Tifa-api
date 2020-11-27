@@ -34,6 +34,7 @@ const {
   emitComment,
   emitFollow,
   emitSystem,
+  emitWhisper,
 } = require("../utils/socket");
 const { FollowModel } = require("../model/Follow");
 const {
@@ -982,6 +983,7 @@ class ContentController {
     });
 
     // 3. 通知对方
+    emitWhisper(oppositeId);
 
     ctx.body = {
       isOk: 1,
@@ -1065,6 +1067,12 @@ class ContentController {
         { usernumber: temp.oppositeId },
         "usernumber name pic"
       );
+      temp.newMsgCount = await WhisperModel.find({
+        targetId: belongId,
+        roomId: temp.roomId,
+        isRead: 0,
+        status: 1,
+      }).countDocuments();
       temp.lastMsg = await WhisperModel.findOne({
         roomId: temp.roomId,
         hidden: { $nin: belongId },

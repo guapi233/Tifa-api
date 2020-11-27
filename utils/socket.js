@@ -123,14 +123,14 @@ async function emitAll(uid) {
   let comment = await getUnreadComments(uid, true);
   let follow = await getUnreadFollows(uid, true);
   let system = await getUnreadSystems(uid);
-
-  // console.log(getUnreadWhispers(uid));
+  let whisper = await getUnreadWhispers(uid);
 
   emitNewMes(socket, "all", {
     like,
     comment,
     follow,
     system,
+    whisper,
   });
 }
 
