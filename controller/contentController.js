@@ -975,6 +975,7 @@ class ContentController {
     // 2. 新建消息
     let res = await newWhisper({
       roomId,
+      targetId: oppositeId,
       authorId: belongId,
       content,
       type,

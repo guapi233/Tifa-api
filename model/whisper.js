@@ -12,6 +12,7 @@ const WhisperSchema = new Schema({
     },
   },
   roomId: String,
+  targetId: String,
   authorId: String,
   isRead: {
     type: Number,
@@ -53,7 +54,9 @@ const newWhisper = async (whisperObj) => {
   }
 };
 
-const getUnReaders = async () => {};
+const getUnReaders = async (belongId) => {
+  let res = await WhisperModel.find({});
+};
 
 module.exports = {
   WhisperModel,
