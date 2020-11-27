@@ -828,7 +828,7 @@ class ContentController {
     const { type, id, unRead = false } = ctx.query;
     const uid = ctx.usernumber;
 
-    // 3为系统通知
+    // 3为系统通知，4为私信
     if (type == 3) {
       let res = await UserModel.updateOne(
         { usernumber: uid },
@@ -837,6 +837,19 @@ class ContentController {
 
       // 更新通知
       res.n && emitSystem(uid, 0);
+
+      return (ctx.body = {
+        isOk: res.n,
+        data: res.n ? "成功设置已读" : "设置失败",
+      });
+    } else if (type == 4) {
+      let res = await WhisperModel.updateMany(
+        { targetId: uid, roomId: id, isRead: 0 },
+        { isRead: 1 }
+      );
+
+      // 更新通知
+      res.n && emitWhisper(uid, -res.n);
 
       return (ctx.body = {
         isOk: res.n,
