@@ -13,6 +13,10 @@ const WhisperSchema = new Schema({
   },
   roomId: String,
   authorId: String,
+  isRead: {
+    type: Number,
+    default: 0,
+  },
   hidden: {
     type: Array,
     default: [],
