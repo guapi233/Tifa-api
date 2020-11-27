@@ -70,6 +70,7 @@ const setUpdated = async (roomId) => {
  * @param {*} show 状态值（1开启、0关闭）
  */
 const setRoomShow = async (roomId, belongId, show) => {
+  show = Number(show) || 0;
   let res = await RoomModel.updateOne(
     { roomId, belongId },
     { show, updated: Date.now() }
