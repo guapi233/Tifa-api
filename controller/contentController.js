@@ -996,7 +996,7 @@ class ContentController {
     });
 
     // 3. 通知对方
-    emitWhisper(oppositeId);
+    emitWhisper(oppositeId, res);
 
     ctx.body = {
       isOk: 1,
