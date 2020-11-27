@@ -829,16 +829,13 @@ class ContentController {
 
     // 3为系统通知
     if (type == 3) {
-      // 能阅读到的新通知数量，在下方减去这个数量的通知
-      let newCount = await getUnReadSystems(uid);
-
       let res = await UserModel.updateOne(
         { usernumber: uid },
         { systemCount: id }
       );
 
       // 更新通知
-      res.n && emitSystem(uid, -newCount);
+      res.n && emitSystem(uid, 0);
 
       return (ctx.body = {
         isOk: res.n,
@@ -982,6 +979,8 @@ class ContentController {
       content,
       type,
     });
+
+    // 3. 通知对方
 
     ctx.body = {
       isOk: 1,
