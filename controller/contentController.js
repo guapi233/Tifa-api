@@ -42,7 +42,7 @@ const {
   getUnReaders: getUnReadSystems,
 } = require("../model/System");
 const { RoomModel, newRoom } = require("../model/Room");
-const { WhisperModel, newWhisper } = require("../model/whisper");
+const { WhisperModel, newWhisper } = require("../model/Whisper");
 
 class ContentController {
   // 添加评论信息

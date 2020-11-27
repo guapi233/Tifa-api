@@ -4,6 +4,7 @@ const { getUnReaders: getUnreadLikes } = require("../model/Like");
 const { getUnReaders: getUnreadComments } = require("../model/Comment");
 const { getUnReaders: getUnreadFollows } = require("../model/Follow");
 const { getUnReaders: getUnreadSystems } = require("../model/System");
+const { getUnReaders: getUnreadWhispers } = require("../model/Whisper");
 
 const socketify = (server) => {
   io = io(server, {
@@ -19,6 +20,7 @@ module.exports = {
   emitComment,
   emitFollow,
   emitSystem,
+  emitWhisper,
 };
 
 const userList = {};
@@ -105,6 +107,14 @@ async function emitSystem(uid, count = 1) {
     });
   }
 }
+// 推送私信通知
+async function emitWhisper(uid, count = 1) {
+  const socket = userList[uid];
+
+  if (!socket) return;
+
+  emitNewMes(socket, "whisper", count);
+}
 // 查询当前全部未读的消息
 async function emitAll(uid) {
   const socket = userList[uid];
@@ -113,6 +123,8 @@ async function emitAll(uid) {
   let comment = await getUnreadComments(uid, true);
   let follow = await getUnreadFollows(uid, true);
   let system = await getUnreadSystems(uid);
+
+  // console.log(getUnreadWhispers(uid));
 
   emitNewMes(socket, "all", {
     like,

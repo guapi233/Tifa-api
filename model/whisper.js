@@ -15,7 +15,7 @@ const WhisperSchema = new Schema({
   authorId: String,
   isRead: {
     type: Number,
-    default: 0,
+    default: 1,
   },
   hidden: {
     type: Array,
@@ -53,7 +53,10 @@ const newWhisper = async (whisperObj) => {
   }
 };
 
+const getUnReaders = async () => {};
+
 module.exports = {
   WhisperModel,
   newWhisper,
+  getUnReaders,
 };
