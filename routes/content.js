@@ -88,4 +88,7 @@ router.get("/addRoom", contentController.addRoom);
 // 查询私信窗口列表
 router.get("/getRoomList", contentController.getRoomList);
 
+// 开/关聊天窗口
+router.get("/setRoomShow", contentController.setRoomShow);
+
 module.exports = router;

@@ -42,8 +42,9 @@ const {
   newSystemMes,
   getUnReaders: getUnReadSystems,
 } = require("../model/System");
-const { RoomModel, newRoom } = require("../model/Room");
+const { RoomModel, newRoom, setRoomShow } = require("../model/Room");
 const { WhisperModel, newWhisper } = require("../model/Whisper");
+const Room = require("../model/Room");
 
 class ContentController {
   // 添加评论信息
@@ -998,6 +999,9 @@ class ContentController {
     // 3. 通知对方
     emitWhisper(oppositeId, res);
 
+    // 4. 更新房间的 更新时间
+    await RoomModel.updateMany({ roomId }, { updated: Date.now() });
+
     ctx.body = {
       isOk: 1,
       data: res,
@@ -1098,6 +1102,25 @@ class ContentController {
       isOk: 1,
       data: res,
     };
+  }
+
+  // 关闭/开启私信窗口
+  async setRoomShow(ctx) {
+    const { roomId, show } = ctx.query;
+    const belongId = ctx.usernumber;
+    if (!roomId || !show) {
+      return ctx.body = {
+        isOk: 0,
+        data: "缺少必要参数"
+      };
+    }
+
+    let res = await setRoomShow(roomId, belongId. show);
+
+    ctx.body {
+      isOk: 1,
+      data: res
+    }
   }
 }
 
