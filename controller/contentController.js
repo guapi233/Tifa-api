@@ -1003,7 +1003,7 @@ class ContentController {
       },
       "-hidden -_id"
     )
-      .skip(skip * limit)
+      .skip(skip)
       .limit(limit)
       .sort({ created: -1 });
     res = res.reverse();
