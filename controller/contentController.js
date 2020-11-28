@@ -1128,6 +1128,22 @@ class ContentController {
       data: res,
     };
   }
+
+  // 私信窗口置顶
+  async setRoomTop(ctx) {
+    const { roomId, topping } = ctx.query;
+    const belongId = ctx.usernumber;
+
+    let res = await RoomModel.updateOne(
+      { roomId, belongId },
+      { topping, updated: Date.now() }
+    );
+
+    ctx.body = {
+      isOk: 1,
+      data: res.n,
+    };
+  }
 }
 
 module.exports = new ContentController();

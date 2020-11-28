@@ -91,4 +91,7 @@ router.get("/getRoomList", contentController.getRoomList);
 // 开/关聊天窗口
 router.get("/setRoomShow", contentController.setRoomShow);
 
+// 置顶聊天窗口
+router.get("/setRoomTop", contentController.setRoomTop);
+
 module.exports = router;
