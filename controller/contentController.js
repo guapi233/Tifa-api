@@ -1144,6 +1144,31 @@ class ContentController {
       data: res.n,
     };
   }
+
+  // 撤回私信
+  async withdrawWhisper(ctx) {
+    const { whisperId } = ctx.query;
+    const authorId = ctx.usernumber;
+
+    let res = await WhisperModel.updateOne(
+      {
+        whisperId,
+        authorId,
+        created: {
+          $gt: Date.now() - 120000,
+        },
+      },
+      { status: 0 }
+    );
+
+    ctx.body = {
+      isOk: 1,
+      data: res.n,
+    };
+  }
+
+  // 删除私信
+  async deleteWhisper(ctx) {}
 }
 
 module.exports = new ContentController();

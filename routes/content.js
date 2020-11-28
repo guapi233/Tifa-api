@@ -94,4 +94,10 @@ router.get("/setRoomShow", contentController.setRoomShow);
 // 置顶聊天窗口
 router.get("/setRoomTop", contentController.setRoomTop);
 
+// 撤回消息
+router.get("/withdrawWhisper", contentController.withdrawWhisper);
+
+// 删除消息
+router.get("/deleteWhisper", contentController.deleteWhisper);
+
 module.exports = router;
