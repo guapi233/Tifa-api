@@ -1080,7 +1080,7 @@ class ContentController {
     let res = await RoomModel.find({ belongId, show: 1 })
       .skip(skip * limit)
       .limit(limit)
-      .sort({ updated: -1 });
+      .sort({ topping: -1, updated: -1 });
 
     // 查询附加信息
     for (let i = 0; i < res.length; i++) {
