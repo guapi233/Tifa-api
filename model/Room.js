@@ -71,10 +71,10 @@ const setUpdated = async (roomId) => {
  */
 const setRoomShow = async (roomId, belongId, show) => {
   show = Number(show) || 0;
-  let res = await RoomModel.updateOne(
-    { roomId, belongId },
-    { show, updated: Date.now() }
-  );
+  const setObj = { show, updated: Date.now() };
+  show === 0 && (setObj.topping = 0);
+
+  let res = await RoomModel.updateOne({ roomId, belongId }, setObj);
 
   return res.n;
 };
