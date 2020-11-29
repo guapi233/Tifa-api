@@ -44,7 +44,6 @@ const {
 } = require("../model/System");
 const { RoomModel, newRoom, setRoomShow } = require("../model/Room");
 const { WhisperModel, newWhisper } = require("../model/Whisper");
-const Room = require("../model/Room");
 
 class ContentController {
   // 添加评论信息
@@ -1102,6 +1101,7 @@ class ContentController {
       }).sort({
         created: -1,
       });
+      !temp.lastMsg.status && (temp.lastMsg.content = "对方撤回了一条消息");
     }
 
     ctx.body = {
@@ -1160,6 +1160,17 @@ class ContentController {
       },
       { status: 0 }
     );
+
+    if (res.n) {
+      // 通知对方
+      const whisper = await WhisperModel.findOne({ whisperId });
+      emitWhisper(whisper.targetId, {
+        type: "withdraw",
+        whisperId,
+        roomId: whisper.roomId,
+        content: "对方撤回了一条消息",
+      });
+    }
 
     ctx.body = {
       isOk: 1,
