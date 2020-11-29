@@ -1179,7 +1179,19 @@ class ContentController {
   }
 
   // 删除私信
-  async deleteWhisper(ctx) {}
+  async deleteWhisper(ctx) {
+    const { whisperId } = ctx.query;
+    const uid = ctx.usernumber;
+
+    const whisper = await WhisperModel.findOne({ whisperId });
+    whisper.hidden.push(uid);
+    await whisper.save();
+
+    ctx.body = {
+      isOk: 1,
+      data: "删除成功",
+    };
+  }
 }
 
 module.exports = new ContentController();
