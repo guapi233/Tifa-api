@@ -11,7 +11,7 @@ const RoomSchema = new Schema({
     type: Number,
     default: 1,
   },
-  undistrub: {
+  undisturb: {
     type: Number,
     default: 0,
   },
