@@ -100,4 +100,7 @@ router.get("/withdrawWhisper", contentController.withdrawWhisper);
 // 删除消息
 router.get("/deleteWhisper", contentController.deleteWhisper);
 
+// 开启免打扰
+router.get("/setUndisturb", contentController.setUndisturb);
+
 module.exports = router;

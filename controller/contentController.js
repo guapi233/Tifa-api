@@ -44,6 +44,7 @@ const {
 } = require("../model/System");
 const { RoomModel, newRoom, setRoomShow } = require("../model/Room");
 const { WhisperModel, newWhisper } = require("../model/Whisper");
+const Room = require("../model/Room");
 
 class ContentController {
   // 添加评论信息
@@ -976,14 +977,17 @@ class ContentController {
     }
 
     // 1. 判断有无房间存在，没有则创建
-    if (!roomId) {
-      let roomId2 = await RoomModel.findOne({ belongId, oppositeId });
-      if (roomId2 && roomId2.roomId) {
-        roomId = roomId2.roomId;
-      } else {
-        let res = await newRoom(belongId, oppositeId);
-        roomId = res.roomId;
-      }
+    let room = {};
+    // 注意：此处查找的为对方的房间，目的是为了了解对方有无开启免打扰，而下方新建大家都为0，所以不需要根据oppositeId
+    room = await RoomModel.findOne({
+      belongId: oppositeId,
+      oppositeId: belongId,
+    });
+    if (room && room.roomId) {
+      roomId = room.roomId;
+    } else {
+      room = await newRoom(belongId, oppositeId);
+      roomId = room.roomId;
     }
 
     // 2. 新建消息
@@ -996,7 +1000,10 @@ class ContentController {
     });
 
     // 3. 通知对方
-    emitWhisper(oppositeId, res);
+    emitWhisper(oppositeId, {
+      ...res,
+      undisturb: room.undisturb,
+    });
 
     // 4. 更新房间的 更新时间 && 打开两边的房间
     await RoomModel.updateMany({ roomId }, { updated: Date.now(), show: 1 });
@@ -1190,6 +1197,20 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: "删除成功",
+    };
+  }
+
+  // 设置免打扰
+  async setUndisturb(ctx) {
+    let { roomId, undisturb } = ctx.query;
+    undisturb = Number(undisturb) || 0;
+    const belongId = ctx.usernumber;
+
+    const res = await RoomModel.updateOne({ roomId, belongId }, { undisturb });
+
+    ctx.body = {
+      isOk: 1,
+      data: res.n,
     };
   }
 }
