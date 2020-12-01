@@ -12,4 +12,7 @@ router.post("/uploadPic", userController.uploadPic);
 // 关注用户
 router.get("/addFollow", userController.addFollow);
 
+// 设置消息通知
+router.post("/setNotice", userController.setNotice);
+
 module.exports = router;

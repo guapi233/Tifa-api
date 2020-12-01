@@ -1,4 +1,4 @@
-const { UserModel } = require("../model/User");
+const { UserModel, getUserInfo } = require("../model/User");
 const { getJwtPaload } = require("../utils/index");
 const { isFollowed, delFollow, newFollow } = require("../model/Follow");
 const { emitFollow } = require("../utils/socket");
@@ -175,6 +175,23 @@ class UserController {
     ctx.body = {
       isOk: 1,
       data: newer,
+    };
+  }
+
+  // 用户消息通知设置
+  async setNotice(ctx) {
+    let { dailyNotice, importNotice } = ctx.request.body;
+    const { usernumber } = getJwtPaload(ctx.header["authorization"]);
+
+    const res = await getUserInfo(usernumber);
+    res.dailyNotice = dailyNotice;
+    res.importNotice = importNotice;
+    await res.save();
+    console.log(typeof dailyNotice, dailyNotice, res.dailyNotice);
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
     };
   }
 }
