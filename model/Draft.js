@@ -71,7 +71,7 @@ const draftIsExist = async (draftId, authorId) => {
   let res = await DraftModel.findOne({ draftId, authorId }, "_id status");
 
   // 重新打开该更新草稿
-  if (!res.status) {
+  if (res && !res.status) {
     res.status = 1;
     await res.save();
   }
