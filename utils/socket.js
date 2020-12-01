@@ -5,6 +5,7 @@ const { getUnReaders: getUnreadComments } = require("../model/Comment");
 const { getUnReaders: getUnreadFollows } = require("../model/Follow");
 const { getUnReaders: getUnreadSystems } = require("../model/System");
 const { getUnReaders: getUnreadWhispers } = require("../model/Whisper");
+const { UserModel } = require("../model/User");
 
 const socketify = (server) => {
   io = io(server, {
@@ -119,11 +120,23 @@ async function emitWhisper(uid, count = 1) {
 async function emitAll(uid) {
   const socket = userList[uid];
 
-  let like = await getUnreadLikes(uid, true);
-  let comment = await getUnreadComments(uid, true);
-  let follow = await getUnreadFollows(uid, true);
-  let system = await getUnreadSystems(uid);
-  let whisper = await getUnreadWhispers(uid);
+  // 查看用户是否开启免扰
+  let { dailyNotice, importNotice } = await UserModel.findOne(
+    { usernumber: uid },
+    "dailyNotice importNotice"
+  );
+
+  let like = (comment = follow = system = whisper = 0);
+  if (importNotice) {
+    system = await getUnreadSystems(uid);
+  }
+
+  if (dailyNotice) {
+    like = await getUnreadLikes(uid, true);
+    comment = await getUnreadComments(uid, true);
+    follow = await getUnreadFollows(uid, true);
+    whisper = await getUnreadWhispers(uid);
+  }
 
   emitNewMes(socket, "all", {
     like,
