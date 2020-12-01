@@ -5,7 +5,7 @@ const { getUnReaders: getUnreadComments } = require("../model/Comment");
 const { getUnReaders: getUnreadFollows } = require("../model/Follow");
 const { getUnReaders: getUnreadSystems } = require("../model/System");
 const { getUnReaders: getUnreadWhispers } = require("../model/Whisper");
-const { UserModel } = require("../model/User");
+const { UserModel, getUserInfo } = require("../model/User");
 
 const socketify = (server) => {
   io = io(server, {
@@ -63,6 +63,10 @@ async function emitLike(uid, count = 1) {
   // let res = await getUnreadLikes(uid, true);
   // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
 
+  // 判断是否开启通知
+  const { dailyNotice } = await getUserInfo(uid);
+  if (!dailyNotice) return;
+
   emitNewMes(socket, "like", count);
 }
 // 推送评论更新消息
@@ -73,6 +77,10 @@ async function emitComment(uid, count = 1) {
 
   // let res = await getUnreadComments(uid, true);
   // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
+
+  // 判断是否开启通知
+  const { dailyNotice } = await getUserInfo(uid);
+  if (!dailyNotice) return;
 
   emitNewMes(socket, "comment", count);
 }
@@ -98,6 +106,10 @@ async function emitSystem(uid, count = 1) {
   // 查询未读信息
   // noop
 
+  // 判断是否开启通知
+  const { dailyNotice } = await getUserInfo(uid);
+  if (!dailyNotice) return;
+
   if (uid) {
     emitNewMes(socket, "system", count);
   } else {
@@ -113,6 +125,10 @@ async function emitWhisper(uid, count = 1) {
   const socket = userList[uid];
 
   if (!socket) return;
+
+  // 判断是否开启通知
+  const { dailyNotice } = await getUserInfo(uid);
+  if (!dailyNotice) return;
 
   emitNewMes(socket, "whisper", count);
 }
