@@ -58,9 +58,13 @@ const UserSchema = new Schema({
     default: "",
   },
   systemCount: Number,
-  unMsgDisturb: {
+  dailyNotice: {
     type: Number,
-    default: 0,
+    default: 1,
+  },
+  importNotice: {
+    type: Number,
+    default: 1,
   },
 });
 
@@ -104,10 +108,22 @@ const newUser = async (userInfoObj) => {
   return newer.toObject();
 };
 
+/**
+ * 获取一个用户的信息（经过筛选后的）
+ * @param {*} usernumber
+ */
+const getUserInfo = async (usernumber) => {
+  const res = await UserModel.findOne({ usernumber }, "-password");
+  console.log(res);
+
+  return res;
+};
+
 module.exports = {
   UserModel,
   userIsExist,
   newUser,
+  getUserInfo,
 };
 
 const { getSystemMesCount } = require("../model/System");
