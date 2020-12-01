@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { getUuid } = require("../utils/index");
-const { setUpdated } = require("./Room");
+const { RoomModel, setUpdated } = require("./Room");
 
 const Schema = mongoose.Schema;
 
@@ -55,13 +55,27 @@ const newWhisper = async (whisperObj) => {
 };
 
 const getUnReaders = async (targetId) => {
-  let res = await WhisperModel.find({
-    targetId,
-    isRead: 0,
-    status: 1,
-  }).countDocuments();
+  let res = await WhisperModel.find(
+    {
+      targetId,
+      isRead: 0,
+      status: 1,
+    },
+    "whisperId roomId"
+  );
 
-  return res;
+  // 查看未读消息的房间是否开启了免扰
+  const undisturbRooms = [];
+  let rooms = await RoomModel.find(
+    { belongId: targetId, undisturb: 1 },
+    "roomId"
+  );
+  rooms.forEach((room) => undisturbRooms.push(room.roomId));
+  res = res.filter((whisper) => {
+    return !undisturbRooms.includes(whisper.roomId);
+  });
+
+  return res.length;
 };
 
 module.exports = {
