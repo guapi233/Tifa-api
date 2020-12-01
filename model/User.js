@@ -58,6 +58,10 @@ const UserSchema = new Schema({
     default: "",
   },
   systemCount: Number,
+  unMsgDisturb: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const UserModel = mongoose.model("users", UserSchema);
