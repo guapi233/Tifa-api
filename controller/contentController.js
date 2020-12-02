@@ -78,18 +78,25 @@ class ContentController {
         type === 1
           ? `commentId targetId commentCount `
           : `${idName} commentCount `;
-    filterStr += type === 0 ? "author " : "authorId ";
+    filterStr += type === 0 ? "author commentAllow " : "authorId ";
 
     let target = await model.findOne(
       { [idName]: targetId, status: 1 },
       filterStr
     );
+    console.log(target.commentAllow, typeof target.commentAllow);
     if (!target) {
       ctx.body = {
         isOk: 0,
         data: "评论对象不存在或已删除",
       };
       return;
+    } else if (!target.commentAllow) {
+      // 懒得写了（设计得太烂）：缺少对文章内部评论的限制
+      return (ctx.body = {
+        isOk: 0,
+        data: "您没有权限对当前文章进行评论",
+      });
     }
 
     // 3.如果评论对象为一级评论，还需将该一级评论的评论对象的评论数量 + 1
