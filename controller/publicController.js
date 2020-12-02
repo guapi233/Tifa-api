@@ -154,16 +154,23 @@ class PublicController {
     userInfo = userInfo.toObject();
     result.author = userInfo;
 
-    // 4. 是否关注该用户 & 是否点过赞
+    // 4. 是否关注该用户 & 是否被作者关注 & 是否点过赞
     if (!usernumber) {
-      result.isLiked = 0;
       result.author.isFollowed = 0;
+      result.author.hasFollowed = 0;
+      result.isLiked = 0;
     } else {
-      const liked = await isLiked(result.articleId, usernumber);
-      result.isLiked = Number(liked);
-
       const followed = await isFollowed(result.author.usernumber, usernumber);
       result.author.isFollowed = Number(followed);
+
+      const hasFollowed = await isFollowed(
+        usernumber,
+        result.author.usernumber
+      );
+      result.author.hasFollowed = Number(hasFollowed);
+
+      const liked = await isLiked(result.articleId, usernumber);
+      result.isLiked = Number(liked);
     }
 
     // 5. 是否收藏当前文章
