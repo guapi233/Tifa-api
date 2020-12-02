@@ -46,6 +46,9 @@ router.get("/delArticle", contentController.delArticle);
 // 编辑文章
 router.post("/modifyArticle", contentController.modifyArticle);
 
+// 设置文章允许评论的人群
+router.get("/setArticleCommentAllow", contentController.setArticleCommentAllow);
+
 // 举报
 router.post("/addReport", contentController.addReport);
 

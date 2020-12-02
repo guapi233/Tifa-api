@@ -44,7 +44,6 @@ const {
 } = require("../model/System");
 const { RoomModel, newRoom, setRoomShow } = require("../model/Room");
 const { WhisperModel, newWhisper } = require("../model/Whisper");
-const Room = require("../model/Room");
 
 class ContentController {
   // 添加评论信息
@@ -566,6 +565,22 @@ class ContentController {
     ctx.body = {
       isOk: 1,
       data: "更新成功",
+    };
+  }
+
+  // 修改文章允许评论的人群
+  async setArticleCommentAllow(ctx) {
+    const { articleId, commentAllow } = ctx.query;
+    const author = ctx.usernumber;
+
+    const res = await ArticleModel.updateOne(
+      { articleId, author },
+      { commentAllow }
+    );
+
+    ctx.body = {
+      isOk: 1,
+      data: res.n,
     };
   }
 
