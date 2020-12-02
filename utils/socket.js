@@ -93,6 +93,10 @@ async function emitFollow(uid, count = 1) {
   // let res = await getUnreadFollows(uid, true);
   // 因为推送是一条一条的推，所以数量只需要固定+1即可，不需要，每次重复查询
 
+  // 判断是否开启通知
+  const { dailyNotice } = await getUserInfo(uid);
+  if (!dailyNotice) return;
+
   emitNewMes(socket, "follow", count);
 }
 // 推送系统通知（管理员）
