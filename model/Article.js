@@ -13,6 +13,10 @@ const ArticleSchema = new Schema({
     type: Number,
     default: 0,
   },
+  commentAllow: {
+    type: Number,
+    default: 0,
+  },
   likeCount: {
     type: Number,
     default: 0,
