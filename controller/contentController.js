@@ -84,7 +84,7 @@ class ContentController {
       { [idName]: targetId, status: 1 },
       filterStr
     );
-    console.log(target.commentAllow, typeof target.commentAllow);
+
     if (!target) {
       ctx.body = {
         isOk: 0,
@@ -244,6 +244,11 @@ class ContentController {
           },
         }
       );
+
+      // 发起提醒
+      // 读取 targetAuthor
+      let targetObj = await model.findOne({ [idName]: targetId });
+      emitLike(targetObj.author || targetObj.authorId, -1);
     } else {
       // 读取 targetAuthor
       let targetObj = await model.findOne({ [idName]: targetId });

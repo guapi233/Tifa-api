@@ -135,6 +135,9 @@ class UserController {
         isOk: 1,
         data: "取消关注",
       };
+
+      // 推送通知
+      emitFollow(targetId, -1);
       return;
     }
 
