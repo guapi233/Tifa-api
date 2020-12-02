@@ -570,7 +570,8 @@ class ContentController {
 
   // 修改文章允许评论的人群
   async setArticleCommentAllow(ctx) {
-    const { articleId, commentAllow } = ctx.query;
+    let { articleId, commentAllow } = ctx.query;
+    commentAllow = Number(commentAllow) || 1;
     const author = ctx.usernumber;
 
     const res = await ArticleModel.updateOne(
