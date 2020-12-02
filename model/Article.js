@@ -15,7 +15,7 @@ const ArticleSchema = new Schema({
   },
   commentAllow: {
     type: Number,
-    default: 0,
+    default: 1,
   },
   likeCount: {
     type: Number,
