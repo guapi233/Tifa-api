@@ -65,9 +65,31 @@ const isBlackListed = async (targetId, authorId, mutual = true) => {
   return blacklisted || hasblacklisted;
 };
 
+/**
+ * 获取屏蔽列表（默认包含我屏蔽的和屏蔽我的）
+ * @param {*} authorId
+ */
+const getBlacklistedList = async (authorId, mutual = true) => {
+  const result = [];
+  const myBlacklisteds = await BlacklistedModel.find({ authorId });
+  myBlacklisteds.forEach((item) => {
+    result.push(item.targetId);
+  });
+
+  if (mutual) {
+    const blacklistedmes = await BlacklistedModel.find({ targetId: authorId });
+    blacklistedmes.forEach((item) => {
+      result.push(item.authorId);
+    });
+  }
+
+  return result;
+};
+
 module.exports = {
   BlacklistedModel,
   newBlacklisted,
   delBlacklisted,
   isBlackListed,
+  getBlacklistedList,
 };
