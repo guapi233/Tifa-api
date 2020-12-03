@@ -6,7 +6,7 @@ const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
 const { getLikes, isLiked } = require("../model/Like");
-const { isBlackListed } = require("../model/BlackListed");
+const { isBlackListed, getBlacklistedList } = require("../model/BlackListed");
 const { isCollected, getCollections } = require("../model/Collection");
 const axios = require("axios");
 const fs = require("fs");
@@ -64,7 +64,7 @@ class PublicController {
 
   // 获取文章列表
   async getArticleList(ctx) {
-    let { limit, skip, usernumber } = ctx.query;
+    let { limit, skip, usernumber, self } = ctx.query;
 
     // 1. 校验数据
     limit = Number(limit) ? Number(limit) : null;
@@ -77,11 +77,21 @@ class PublicController {
     // 3. 读取数据
     let result = [];
     if (usernumber) {
+      // 用户页文章
       result = await ArticleModel.find({ status: 1, author: usernumber }).sort({
         created: -1,
       });
     } else {
-      result = await ArticleModel.find({ status: 1 }, filterStr)
+      // 首页文章
+      // 过滤我屏蔽人的文章
+      let blacklistedList = [];
+      if (self) {
+        blacklistedList = await getBlacklistedList(self);
+      }
+      result = await ArticleModel.find(
+        { status: 1, author: { $nin: blacklistedList } },
+        filterStr
+      )
         .sort({ created: -1 })
         .skip(skip * limit)
         .limit(limit);
