@@ -48,14 +48,21 @@ const delBlacklisted = async (blacklistedId) => {
 };
 
 /**
- * 判断一个人是否被另一个人拉黑了
- * @param {String} targetId
- * @param {String} authorId
+ * 判断有没有拉黑行为（默认判断两人之间有任意拉黑即可）
+ * @param {String} targetId 目标
+ * @param {String} authorId 发起者
+ * @param {Boolean} mutual 关闭后仅判断发起者对目标是否有拉黑行为
  */
-const isBlackListed = async (targetId, authorId) => {
-  const res = await BlacklistedModel.findOne({ targetId, authorId });
+const isBlackListed = async (targetId, authorId, mutual = true) => {
+  const blacklisted = await BlacklistedModel.findOne({ targetId, authorId });
+  if (!mutual) return blacklisted;
 
-  return res;
+  const hasblacklisted = await BlacklistedModel.findOne({
+    targetId: authorId,
+    authorId: targetId,
+  });
+
+  return blacklisted || hasblacklisted;
 };
 
 module.exports = {
