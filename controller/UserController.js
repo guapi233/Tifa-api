@@ -119,7 +119,7 @@ class UserController {
     const black = await isBlackListed(usernumber, targetId);
     if (black) {
       return (ctx.body = {
-        isOk: 1,
+        isOk: 0,
         data: "关注失败",
       });
     }
