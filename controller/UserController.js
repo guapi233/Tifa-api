@@ -1,6 +1,12 @@
 const { UserModel, getUserInfo } = require("../model/User");
 const { getJwtPaload } = require("../utils/index");
 const { isFollowed, delFollow, newFollow } = require("../model/Follow");
+const {
+  BlacklistedModel,
+  newBlacklisted,
+  isBlackListed,
+  delBlacklisted,
+} = require("../model/BlackListed");
 const { emitFollow } = require("../utils/socket");
 
 class UserController {
@@ -195,6 +201,33 @@ class UserController {
     ctx.body = {
       isOk: 1,
       data: res,
+    };
+  }
+
+  // 拉黑一个人
+  async setBlacklisted(ctx) {
+    const { targetId } = ctx.query;
+    const { usernumber: authorId } = getJwtPaload(ctx.header["authorization"]);
+
+    // 1. 判断是否已经拉黑
+    const black = await isBlackListed(targetId, authorId);
+    let msg = "";
+
+    if (black) {
+      // 2. 取消拉黑
+      const res = await delBlacklisted(black.blacklistedId);
+      res && (msg = "取消屏蔽");
+    } else {
+      const res = await newBlacklisted({
+        targetId,
+        authorId,
+      });
+      res && (msg = "成功屏蔽此用户");
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: msg,
     };
   }
 }

@@ -15,4 +15,7 @@ router.get("/addFollow", userController.addFollow);
 // 设置消息通知
 router.post("/setNotice", userController.setNotice);
 
+// 拉黑
+router.get("/setBlacklisted", userController.setBlacklisted);
+
 module.exports = router;
