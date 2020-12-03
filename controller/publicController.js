@@ -1,6 +1,6 @@
 const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
-const { shuffle } = require("../utils/index");
+const { shuffle, getJwtPaload } = require("../utils/index");
 const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
@@ -520,17 +520,29 @@ class PublicController {
   // 获取当前文章衍生的推荐阅读文章
   async getRecArticle(ctx) {
     let { articleId, tags, limit } = ctx.query;
+    // 尝试从token中拿当前登录状态
+    let payload = null;
+    ctx.header["authorization"] &&
+      (payload = getJwtPaload(ctx.header["authorization"]));
+
     tags = tags.split("|");
     limit = Number(limit) || 6;
 
     let articles = [],
       idList = [articleId];
 
+    // 0. 过滤我屏蔽人的文章
+    let blacklistedList = [];
+    if (payload && payload.usernumber) {
+      blacklistedList = await getBlacklistedList(payload.usernumber);
+    }
+
     // 1. 查询数据
     for (let i = 0; i < tags.length; i++) {
       let res = await ArticleModel.find({
         tags: { $in: tags[i] },
         articleId: { $nin: idList },
+        author: { $nin: blacklistedList },
         status: 1,
       }).limit(limit);
 
