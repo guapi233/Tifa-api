@@ -246,8 +246,8 @@ class PublicController {
     comments.forEach((comment) => {
       likeCount += comment.likeCount;
     });
-    // 4.4 当前查看用户是否被屏蔽
-    const blacklisted = await isBlackListed(self, usernumber);
+    // 4.4 第一人称用户有没有屏蔽该用户
+    const blacklisted = await isBlackListed(usernumber, self);
 
     userInfo.likeCount = likeCount;
     userInfo.viewCount = viewCount;
