@@ -1,5 +1,6 @@
 const mongoose = require("../utils/db");
 const { getUuid } = require("../utils/index");
+const { UserModel } = require("./User");
 
 const Schema = mongoose.Schema;
 
@@ -94,6 +95,63 @@ const getUnReaders = async (targetId, count) => {
   return res;
 };
 
+/**
+ * 取关
+ * @param {*} targetId 目标
+ * @param {*} usernumber 发起者
+ * @param {*} mutual 是否互相取关（默认false）
+ */
+const cancelFollow = async (targetId, usernumber, mutual = false) => {
+  const followed = await isFollowed(targetId, usernumber);
+  if (followed) {
+    await delFollow(targetId, usernumber);
+    // 关注数量--，目标用户粉丝数量--
+    await UserModel.updateOne(
+      { usernumber },
+      {
+        $inc: {
+          follow: -1,
+        },
+      }
+    );
+    await UserModel.updateOne(
+      { usernumber: targetId },
+      {
+        $inc: {
+          followed: -1,
+        },
+      }
+    );
+  }
+
+  if (mutual) {
+    [targetId, usernumber] = [usernumber, targetId];
+    console.log(targetId, usernumber);
+
+    const followed = await isFollowed(targetId, usernumber);
+    if (followed) {
+      await delFollow(targetId, usernumber);
+      // 关注数量--，目标用户粉丝数量--
+      await UserModel.updateOne(
+        { usernumber },
+        {
+          $inc: {
+            follow: -1,
+          },
+        }
+      );
+      await UserModel.updateOne(
+        { usernumber: targetId },
+        {
+          $inc: {
+            followed: -1,
+          },
+        }
+      );
+    }
+  }
+};
+
 module.exports = {
   FollowModel,
   newFollow,
@@ -102,4 +160,5 @@ module.exports = {
   getFollowList,
   getFollowedList,
   getUnReaders,
+  cancelFollow,
 };
