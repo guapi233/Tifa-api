@@ -5,7 +5,8 @@ const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
-const { getLikes, isLiked, LikeModel } = require("../model/Like");
+const { getLikes, isLiked } = require("../model/Like");
+const { isBlackListed } = require("../model/BlackListed");
 const { isCollected, getCollections } = require("../model/Collection");
 const axios = require("axios");
 const fs = require("fs");
@@ -245,9 +246,12 @@ class PublicController {
     comments.forEach((comment) => {
       likeCount += comment.likeCount;
     });
+    // 4.4 当前查看用户是否被屏蔽
+    const blacklisted = await isBlackListed(self, usernumber);
 
     userInfo.likeCount = likeCount;
     userInfo.viewCount = viewCount;
+    userInfo.blacklisted = Boolean(blacklisted);
 
     ctx.body = {
       isOk: 1,
