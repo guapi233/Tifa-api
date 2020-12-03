@@ -44,6 +44,7 @@ const {
 } = require("../model/System");
 const { RoomModel, newRoom, setRoomShow } = require("../model/Room");
 const { WhisperModel, newWhisper } = require("../model/Whisper");
+const { isBlackListed } = require("../model/BlackListed");
 
 class ContentController {
   // 添加评论信息
@@ -1089,6 +1090,15 @@ class ContentController {
     const { oppositeId } = ctx.query;
     const belongId = ctx.usernumber;
     let roomId = "";
+
+    // 0. 查看是否被屏蔽
+    const black = await isBlackListed(belongId, oppositeId);
+    if (black) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "操作失败",
+      });
+    }
 
     // 1. 判断有无房间存在，没有则创建
     let room = await RoomModel.findOne({ belongId, oppositeId });
