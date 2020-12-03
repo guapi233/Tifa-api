@@ -126,7 +126,6 @@ const cancelFollow = async (targetId, usernumber, mutual = false) => {
 
   if (mutual) {
     [targetId, usernumber] = [usernumber, targetId];
-    console.log(targetId, usernumber);
 
     const followed = await isFollowed(targetId, usernumber);
     if (followed) {
