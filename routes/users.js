@@ -18,4 +18,7 @@ router.post("/setNotice", userController.setNotice);
 // 拉黑
 router.get("/setBlacklisted", userController.setBlacklisted);
 
+// 获取我拉黑的列表
+router.get("/getBlacklistedList", userController.getBlacklistedList);
+
 module.exports = router;

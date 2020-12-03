@@ -10,6 +10,7 @@ const {
   newBlacklisted,
   isBlackListed,
   delBlacklisted,
+  getBlacklistedList,
 } = require("../model/BlackListed");
 const { emitFollow } = require("../utils/socket");
 
@@ -244,6 +245,30 @@ class UserController {
     ctx.body = {
       isOk: 1,
       data: msg,
+    };
+  }
+
+  // 获取我拉黑的列表
+  async getBlacklistedList(ctx) {
+    let { skip, limit } = ctx.query;
+    skip = Number(skip) || 0;
+    limit = Number(limit) || 20;
+
+    const payload = getJwtPaload(ctx.header["authorization"]);
+    let res = await getBlacklistedList(payload.usernumber, false, skip, limit);
+
+    // 添加附加信息
+    for (let i = 0; i < res.length; i++) {
+      const item = res[i];
+      res[i] = await UserModel.findOne(
+        { usernumber: item },
+        "usernumber pic name"
+      );
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: res,
     };
   }
 }
