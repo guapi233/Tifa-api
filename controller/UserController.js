@@ -1,6 +1,11 @@
 const { UserModel, getUserInfo } = require("../model/User");
 const { getJwtPaload } = require("../utils/index");
-const { isFollowed, delFollow, newFollow } = require("../model/Follow");
+const {
+  isFollowed,
+  delFollow,
+  newFollow,
+  cancelFollow,
+} = require("../model/Follow");
 const {
   newBlacklisted,
   isBlackListed,
@@ -231,6 +236,9 @@ class UserController {
         authorId,
       });
       res && (msg = "成功屏蔽此用户");
+
+      // 互相取关
+      cancelFollow(targetId, authorId, true);
     }
 
     ctx.body = {
