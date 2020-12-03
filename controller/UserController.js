@@ -2,7 +2,6 @@ const { UserModel, getUserInfo } = require("../model/User");
 const { getJwtPaload } = require("../utils/index");
 const { isFollowed, delFollow, newFollow } = require("../model/Follow");
 const {
-  BlacklistedModel,
   newBlacklisted,
   isBlackListed,
   delBlacklisted,
@@ -114,6 +113,15 @@ class UserController {
         data: "自己不能关注自己哦",
       };
       return;
+    }
+
+    // 1.1 判断是否被拉黑了
+    const black = await isBlackListed(usernumber, targetId);
+    if (black) {
+      return (ctx.body = {
+        isOk: 1,
+        data: "关注失败",
+      });
     }
 
     // 2. 判断是否已经关注
