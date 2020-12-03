@@ -247,8 +247,8 @@ class PublicController {
       likeCount += comment.likeCount;
     });
     // 4.4 第一人称用户有没有屏蔽该用户
-    const blacklisted = await isBlackListed(usernumber, self);
-
+    const blacklisted = await isBlackListed(usernumber, self, false);
+    console.log(blacklisted);
     userInfo.likeCount = likeCount;
     userInfo.viewCount = viewCount;
     userInfo.blacklisted = Boolean(blacklisted);
