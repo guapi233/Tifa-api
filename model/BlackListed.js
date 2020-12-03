@@ -67,11 +67,22 @@ const isBlackListed = async (targetId, authorId, mutual = true) => {
 
 /**
  * 获取屏蔽列表（默认包含我屏蔽的和屏蔽我的）
- * @param {*} authorId
+ * @param {String} authorId 用户Id
+ * @param {Boolean} mutual 是否检测双向屏蔽（默认开启）
+ * @param {Number} skip 跳过的条目数（默认为0）
+ * @param {Number} limit 一页的条目数（默认20）
  */
-const getBlacklistedList = async (authorId, mutual = true) => {
+const getBlacklistedList = async (
+  authorId,
+  mutual = true,
+  skip = 0,
+  limit = 20
+) => {
   const result = [];
-  const myBlacklisteds = await BlacklistedModel.find({ authorId });
+  const myBlacklisteds = await BlacklistedModel.find({ authorId })
+    .skip(skip * limit)
+    .limit(limit)
+    .sort({ created: -1 });
   myBlacklisteds.forEach((item) => {
     result.push(item.targetId);
   });
