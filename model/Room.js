@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require("../utils/db");
 const { getUuid } = require("../utils/index");
 
 const Schema = mongoose.Schema;
