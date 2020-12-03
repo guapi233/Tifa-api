@@ -1011,6 +1011,15 @@ class ContentController {
       });
     }
 
+    // 0. 查看是否被屏蔽
+    const black = await isBlackListed(belongId, oppositeId);
+    if (black) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "操作失败",
+      });
+    }
+
     // 1. 判断有无房间存在，没有则创建
     let room = {};
     // 注意：此处查找的为对方的房间，目的是为了了解对方有无开启免打扰，而下方新建大家都为0，所以不需要根据oppositeId
