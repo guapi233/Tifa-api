@@ -251,6 +251,15 @@ class ContentController {
       let targetObj = await model.findOne({ [idName]: targetId });
       emitLike(targetObj.author || targetObj.authorId, -1);
     } else {
+      // 判断是否被屏蔽
+      const black = isBlackListed(targetId, usernumber);
+      if (black) {
+        return (ctx.body = {
+          isOk: 0,
+          data: "操作失败",
+        });
+      }
+
       // 读取 targetAuthor
       let targetObj = await model.findOne({ [idName]: targetId });
 
