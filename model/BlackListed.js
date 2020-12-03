@@ -44,7 +44,6 @@ const newBlacklisted = async (blacklistedObj) => {
 const delBlacklisted = async (blacklistedId) => {
   const res = await BlacklistedModel.deleteOne({ blacklistedId });
 
-  console.log(res);
   return res;
 };
 
