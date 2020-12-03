@@ -59,15 +59,6 @@ class ContentController {
       secondLevelCommentId = "",
     } = ctx.request.body;
 
-    // 0. 是否被屏蔽
-    const black = await isBlackListed(targetId, replyId);
-    if (black) {
-      return (ctx.body = {
-        isOk: 0,
-        data: "操作失败",
-      });
-    }
-
     // 1. 校验信息
     if (!targetId || !replyId || !content || typeof type === "undefined") {
       ctx.body = {
@@ -101,11 +92,20 @@ class ContentController {
         data: "评论对象不存在或已删除",
       };
       return;
-    } else if (!target.commentAllow) {
+    } else if (type === 0 && !target.commentAllow) {
       // 懒得写了（设计得太烂）：缺少对文章内部评论的限制
       return (ctx.body = {
         isOk: 0,
         data: "您没有权限对当前文章进行评论",
+      });
+    } else if (
+      type === 0 &&
+      (await isBlackListed(target.author, ctx.usernumber))
+    ) {
+      // 如果当前的评论目标处于的文章作者已将发起评论的人屏蔽，则该评论无效
+      return (ctx.body = {
+        isOk: 0,
+        data: "操作失败",
       });
     }
 
@@ -123,7 +123,9 @@ class ContentController {
       // 查询一级评论的评论对象
       let model = targetModels[targetType][0],
         idName = targetModels[targetType][1],
-        filterStr = `${idName} commentCount`;
+        filterStr = `${idName} commentCount ${
+          idName === "articleId" ? "author" : ""
+        }`;
 
       targetOfTarget = await model.findOne(
         { [idName]: target.targetId, status: 1 },
@@ -136,6 +138,17 @@ class ContentController {
           data: "评论的对象不存在或已删除",
         };
         return;
+      } else if (await isBlackListed(targetOfTarget.author, ctx.usernumber)) {
+        console.log(
+          targetOfTarget.author,
+          ctx.usernumber,
+          isBlackListed(targetOfTarget.author, ctx.usernumber)
+        );
+        // 如果当前的评论目标处于的文章作者已将发起评论的人屏蔽，则该评论无效
+        return (ctx.body = {
+          isOk: 0,
+          data: "操作失败",
+        });
       }
 
       // 3.1 如果评论的对象为2级评论，需要顺道将该2级评论的 commentCount++;
