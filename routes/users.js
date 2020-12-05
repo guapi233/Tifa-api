@@ -21,4 +21,7 @@ router.get("/setBlacklisted", userController.setBlacklisted);
 // 获取我拉黑的列表
 router.get("/getBlacklistedList", userController.getBlacklistedList);
 
+// 修改偏好
+router.post("/setMinePre", userController.setMinePre);
+
 module.exports = router;

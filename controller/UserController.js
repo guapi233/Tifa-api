@@ -1,5 +1,5 @@
 const { UserModel, getUserInfo } = require("../model/User");
-const { getJwtPaload } = require("../utils/index");
+const { getJwtPaload, isNumber } = require("../utils/index");
 const {
   isFollowed,
   delFollow,
@@ -269,6 +269,30 @@ class UserController {
     ctx.body = {
       isOk: 1,
       data: res,
+    };
+  }
+
+  // 修改偏好
+  async setMinePre(ctx) {
+    let { trendVisible, collectionVisible } = ctx.request.body;
+    trendVisible = Number(trendVisible);
+    collectionVisible = Number(collectionVisible);
+    const { usernumber } = getJwtPaload(ctx.header["authorization"]);
+    if (!isNumber(trendVisible) || !isNumber(collectionVisible)) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "操作失败",
+      });
+    }
+
+    const res = await UserModel.updateOne(
+      { usernumber },
+      { trendVisible, collectionVisible }
+    );
+
+    ctx.body = {
+      isOk: 1,
+      data: res.n,
     };
   }
 }
