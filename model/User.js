@@ -66,6 +66,14 @@ const UserSchema = new Schema({
     type: Number,
     default: 1,
   },
+  trendVisible: {
+    type: Number,
+    default: 1,
+  },
+  collectionVisible: {
+    type: Number,
+    default: 1,
+  },
 });
 
 const UserModel = mongoose.model("users", UserSchema);
