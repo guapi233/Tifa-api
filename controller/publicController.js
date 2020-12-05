@@ -399,6 +399,15 @@ class PublicController {
       return;
     }
 
+    // 该用户是否展示自己的收藏列表
+    const user = await UserModel.findOne({ usernumber }, "collectionVisible");
+    if (user && user.collectionVisible) {
+      return (ctx.body = {
+        isOk: 1,
+        data: [],
+      });
+    }
+
     let res = await getCollections(usernumber);
 
     res = await Promise.all(
