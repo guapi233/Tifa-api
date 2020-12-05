@@ -391,6 +391,7 @@ class PublicController {
   // 获取收藏列表
   async getCollectionList(ctx) {
     const { usernumber } = ctx.query;
+    const { usernumber: self } = getJwtPaload(ctx.header["authorization"]);
     if (!usernumber) {
       ctx.body = {
         isOk: 0,
@@ -401,7 +402,7 @@ class PublicController {
 
     // 该用户是否展示自己的收藏列表
     const user = await UserModel.findOne({ usernumber }, "collectionVisible");
-    if (user && user.collectionVisible) {
+    if (user && !user.collectionVisible && usernumber !== self) {
       return (ctx.body = {
         isOk: 1,
         data: [],
