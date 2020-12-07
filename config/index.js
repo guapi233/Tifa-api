@@ -13,7 +13,7 @@ const REDIS = {
   port: 6379,
 };
 
-// 验证码有效期
+// 验证码有效期（秒）
 const CAPTCHA_LIFE = 10 * 60;
 
 const BASE_URL = "http://localhost:3000";
