@@ -1,6 +1,6 @@
 const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
-const { shuffle, getJwtPaload } = require("../utils/index");
+const { shuffle, getJwtPaload, getUuid, isEmail } = require("../utils/index");
 const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
@@ -16,6 +16,8 @@ const {
   getFollowedList,
   isFollowed,
 } = require("../model/Follow");
+const { sendMailAsVerifyCode, sendMailAsLink } = require("../utils/mailer");
+const { CAPTCHA_LIFE, BASE_URL } = require("../config");
 
 class PublicController {
   // 获取验证码
@@ -228,9 +230,14 @@ class PublicController {
       delete userInfo[key];
     });
 
-    // 3. 查询 是否关注此用户
-    let followed = await isFollowed(usernumber, self);
-    userInfo.isFollowed = Number(followed);
+    // 3. 查询 是否关注此用户 & 第一人称用户有没有屏蔽该用户
+    if (usernumber !== self) {
+      const followed = await isFollowed(usernumber, self);
+      userInfo.isFollowed = Number(followed);
+
+      const blacklisted = await isBlackListed(usernumber, self, false);
+      userInfo.blacklisted = Boolean(blacklisted);
+    }
 
     // 4. 添加汇总信息（加入天数、创建文章数量、文章阅读总数量、收到的点赞量）
     // 4.1 加入时间
@@ -256,12 +263,9 @@ class PublicController {
     comments.forEach((comment) => {
       likeCount += comment.likeCount;
     });
-    // 4.4 第一人称用户有没有屏蔽该用户
-    const blacklisted = await isBlackListed(usernumber, self, false);
 
     userInfo.likeCount = likeCount;
     userInfo.viewCount = viewCount;
-    userInfo.blacklisted = Boolean(blacklisted);
 
     ctx.body = {
       isOk: 1,
@@ -647,6 +651,68 @@ class PublicController {
     ctx.body = {
       isOk: 1,
       data,
+    };
+  }
+
+  // 发送邮件
+  async sendMail(ctx) {
+    // 0位绑定邮箱、1为忘记密码
+    let { type, sid, email, usernumber } = ctx.query;
+    usernumber =
+      usernumber || getJwtPaload(ctx.header["authorization"]).usernumber;
+
+    // 0. 验证邮箱格式
+    if (!isEmail(email)) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "邮箱格式错误",
+      });
+    }
+
+    // 1. 查找用户信息
+    const user = await UserModel.findOne({ usernumber });
+    if (!user) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "该用户不存在",
+      });
+    }
+
+    try {
+      // 生成并写入验证码
+      const verifyCode = Array.prototype.slice.call(getUuid(), 0, 7).join("");
+      setRedisVal(sid, verifyCode, CAPTCHA_LIFE);
+      // CAPTCHA_LIFE以秒为单位，转换为分钟
+      const validTime = CAPTCHA_LIFE / 60;
+
+      if (type === "0") {
+        await sendMailAsLink({
+          email: email,
+          title: "绑定邮箱",
+          name: user.name,
+          content: `${BASE_URL}/user/setEmail?verifyCode=${verifyCode}&sid=${sid}&email=${email}&usernumber=${usernumber}`,
+          validTime,
+        });
+      } else if (type === "1") {
+        await sendMailAsVerifyCode({
+          email: user.email,
+          title: "找回登录密码",
+          name: user.name,
+          content: verifyCode,
+          validTime,
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      ctx.body = {
+        isOk: 0,
+        data: "邮件发送失败",
+      };
+    }
+
+    ctx.body = {
+      isOk: 1,
+      data: "邮件已发送",
     };
   }
 }
