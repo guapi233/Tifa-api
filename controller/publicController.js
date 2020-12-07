@@ -662,7 +662,7 @@ class PublicController {
       usernumber || getJwtPaload(ctx.header["authorization"]).usernumber;
 
     // 0. 验证邮箱格式
-    if (!isEmail(email)) {
+    if (email && !isEmail(email)) {
       return (ctx.body = {
         isOk: 0,
         data: "邮箱格式错误",
@@ -671,10 +671,11 @@ class PublicController {
 
     // 1. 查找用户信息
     const user = await UserModel.findOne({ usernumber });
-    if (!user) {
+
+    if (!user || !user.email) {
       return (ctx.body = {
         isOk: 0,
-        data: "该用户不存在",
+        data: "该用户不存在或者未绑定邮箱",
       });
     }
 
@@ -686,7 +687,7 @@ class PublicController {
       const validTime = CAPTCHA_LIFE / 60;
 
       if (type === "0") {
-        await sendMailAsLink({
+        sendMailAsLink({
           email: email,
           title: "绑定邮箱",
           name: user.name,
@@ -694,7 +695,7 @@ class PublicController {
           validTime,
         });
       } else if (type === "1") {
-        await sendMailAsVerifyCode({
+        sendMailAsVerifyCode({
           email: user.email,
           title: "找回登录密码",
           name: user.name,
