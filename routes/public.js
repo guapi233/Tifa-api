@@ -39,4 +39,7 @@ router.get("/getRecArticle", publicController.getRecArticle);
 // 获取B站EMoji
 router.post("/getBiEmoji", publicController.getBiEmoji);
 
+// 发送邮件
+router.get("/sendMail", publicController.sendMail);
+
 module.exports = router;
