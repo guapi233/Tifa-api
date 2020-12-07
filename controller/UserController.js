@@ -1,5 +1,5 @@
 const { UserModel, getUserInfo } = require("../model/User");
-const { getJwtPaload, isNumber } = require("../utils/index");
+const { getJwtPaload, isNumber, checkCaptcha } = require("../utils/index");
 const {
   isFollowed,
   delFollow,
@@ -12,7 +12,7 @@ const {
   delBlacklisted,
   getBlacklistedList,
 } = require("../model/BlackListed");
-const { emitFollow } = require("../utils/socket");
+const { emitFollow, emitSetting } = require("../utils/socket");
 
 class UserController {
   // 编辑资料
@@ -294,6 +294,35 @@ class UserController {
       isOk: 1,
       data: res.n,
     };
+  }
+
+  // 绑定邮箱
+  async setEmail(ctx) {
+    const { usernumber, email, sid, verifyCode } = ctx.query;
+
+    // 1. 验证验证码
+    if (!(await checkCaptcha(sid, verifyCode))) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "邮箱绑定失败，请关闭窗口",
+      });
+    }
+
+    // 2. 绑定邮箱
+    const res = await UserModel.updateOne({ usernumber }, { email });
+
+    // 3. 通知前端更新
+    res.n && emitSetting(usernumber);
+
+    ctx.body = {
+      isOk: res.n,
+      data: res.n ? "绑定邮箱成功，请关闭窗口" : "绑定邮箱失败，请关闭窗口",
+    };
+  }
+
+  // 修改密码
+  async setPassword(ctx) {
+    const { old, verifyCode } = ctx.request.body;
   }
 }
 

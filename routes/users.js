@@ -3,6 +3,17 @@ const userController = require("../controller/UserController");
 
 router.prefix("/user");
 
+// 前置钩子
+router.use("/", async (ctx, next) => {
+  // 解析token 获取usernumber
+  if (ctx.header["authorization"]) {
+    const { usernumber } = getJwtPaload(ctx.header["authorization"]);
+    ctx.usernumber = usernumber;
+  }
+
+  await next();
+});
+
 // 编辑用户信息
 router.post("/edit", userController.edit);
 
@@ -23,5 +34,8 @@ router.get("/getBlacklistedList", userController.getBlacklistedList);
 
 // 修改偏好
 router.post("/setMinePre", userController.setMinePre);
+
+// 绑定邮箱
+router.get("/setEmail", userController.setEmail);
 
 module.exports = router;
