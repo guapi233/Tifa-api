@@ -6,6 +6,7 @@ const { getRedisVal, delRedisVal } = require("../utils/redis");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config/index");
+const bcrypt = require("bcrypt");
 
 /**
  * （异步方法）核对验证码（核对完毕后会删除验证码）
@@ -99,6 +100,23 @@ const isEmail = (str) => {
   return /^([a-zA-Z]|[0-9])(\w|-)+@[a-zA-Z0-9]+.([a-zA-Z]{2,4})$/.test(str);
 };
 
+/**
+ * 比较密码是否一致
+ * @param {*} password 密码
+ * @param {*} target 已经加密的密码
+ */
+const comparePassword = (password, target) => {
+  return bcrypt.compareSync(password, target);
+};
+
+/**
+ * 加密密码
+ * @param {*} password 密码
+ */
+const encrptPassword = (password) => {
+  return bcrypt.hashSync(password, 5);
+};
+
 module.exports = {
   checkCaptcha,
   getUuid,
@@ -108,4 +126,6 @@ module.exports = {
   isNumber,
   isOverdue,
   isEmail,
+  comparePassword,
+  encrptPassword,
 };
