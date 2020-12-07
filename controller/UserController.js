@@ -1,5 +1,11 @@
 const { UserModel, getUserInfo } = require("../model/User");
-const { getJwtPaload, isNumber, checkCaptcha } = require("../utils/index");
+const {
+  getJwtPaload,
+  isNumber,
+  checkCaptcha,
+  comparePassword,
+  encrptPassword,
+} = require("../utils/index");
 const {
   isFollowed,
   delFollow,
@@ -322,7 +328,37 @@ class UserController {
 
   // 修改密码
   async setPassword(ctx) {
-    const { old, verifyCode } = ctx.request.body;
+    let { oldPassword, newPassword, verifyCode, sid, usernumber } = ctx.query;
+    usernumber = usernumber || ctx.usernumber;
+
+    if ((!oldPassword && (!verifyCode || !sid)) || !usernumber) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "修改失败",
+      });
+    } else if (oldPassword) {
+      // 根据密码修改
+      const user = await UserModel.findOne({ usernumber });
+
+      // 校验密码
+      if (!comparePassword(oldPassword, user.password)) {
+        return (ctx.body = {
+          isOk: 0,
+          data: "修改失败",
+        });
+      }
+
+      // 修改密码
+      user.password = encrptPassword(newPassword);
+      await user.save();
+
+      ctx.body = {
+        isOk: 1,
+        data: "修改成功",
+      };
+    } else if (verifyCode && sid) {
+      // 根据验证码修改
+    }
   }
 }
 

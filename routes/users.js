@@ -1,5 +1,6 @@
 const router = require("koa-router")();
 const userController = require("../controller/UserController");
+const { getJwtPaload } = require("../utils/index");
 
 router.prefix("/user");
 
@@ -37,5 +38,8 @@ router.post("/setMinePre", userController.setMinePre);
 
 // 绑定邮箱
 router.get("/setEmail", userController.setEmail);
+
+// 修改密码
+router.get("/setPassword", userController.setPassword);
 
 module.exports = router;
