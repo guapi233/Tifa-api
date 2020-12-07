@@ -367,6 +367,24 @@ class UserController {
       };
     } else if (verifyCode && sid) {
       // 根据验证码修改
+      // 校验验证码
+      if (!(await checkCaptcha(sid, verifyCode))) {
+        return (ctx.body = {
+          isOk: 0,
+          data: "验证码错误",
+        });
+      }
+
+      // 修改密码
+      const res = await UserModel.updateOne(
+        { usernumber },
+        { password: encrptPassword(newPassword) }
+      );
+
+      ctx.body = {
+        isOk: res.n,
+        data: res.n ? "修改成功" : "修改失败",
+      };
     }
   }
 }
