@@ -314,10 +314,19 @@ class UserController {
       });
     }
 
-    // 2. 绑定邮箱
+    // 2. 判断邮箱是否存在
+    const user = UserModel.findOne({ email });
+    if (user) {
+      return (ctx.body = {
+        isOk: 0,
+        data: "该邮箱已被占用",
+      });
+    }
+
+    // 3. 绑定邮箱
     const res = await UserModel.updateOne({ usernumber }, { email });
 
-    // 3. 通知前端更新
+    // 4. 通知前端更新
     res.n && emitSetting(usernumber);
 
     ctx.body = {
