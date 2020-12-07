@@ -22,6 +22,7 @@ module.exports = {
   emitFollow,
   emitSystem,
   emitWhisper,
+  emitSetting,
 };
 
 const userList = {};
@@ -165,6 +166,15 @@ async function emitAll(uid) {
     system,
     whisper,
   });
+}
+
+// 推送用户信息修改通知
+async function emitSetting(uid) {
+  const socket = userList[uid];
+
+  if (!socket) return;
+
+  socket.emit("hasSetting");
 }
 
 // emit new message (except whisper)
