@@ -8,13 +8,14 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config/index");
 
 /**
- * 核对验证码
+ * 核对验证码（核对完毕后会删除验证码
  * @param {String} sid sid值
  * @param {String} text 客户端发来的验证文本
+ * @param {Boolean} del 是否删除（默认删除)
  */
-const checkCaptcha = async (sid, text) => {
+const checkCaptcha = async (sid, text, del = true) => {
   let result = await getRedisVal(sid);
-  delRedisVal(sid);
+  del && delRedisVal(sid);
 
   if (!result) return false;
 
