@@ -42,4 +42,7 @@ router.get("/setEmail", userController.setEmail);
 // 修改密码
 router.get("/setPassword", userController.setPassword);
 
+// 设置个性域名
+router.get("/setAlias", userController.setAlias);
+
 module.exports = router;

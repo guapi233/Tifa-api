@@ -5,6 +5,8 @@ const {
   checkCaptcha,
   comparePassword,
   encrptPassword,
+  fail,
+  suc,
 } = require("../utils/index");
 const {
   isFollowed,
@@ -386,6 +388,31 @@ class UserController {
         data: res.n ? "修改成功" : "修改失败",
       };
     }
+  }
+
+  // 设置个性域名
+  async setAlias(ctx) {
+    const { alias } = ctx.query;
+    const usernumber = ctx.usernumber;
+
+    // 判断 alias 是否已被注册
+    const running = await UserModel.findOne({ alias }, "usernumber");
+    if (running && running.usernumber === usernumber) {
+      return fail(ctx, "您已绑定个性域名");
+    } else if (running) {
+      return fail(ctx, "该个性域名已被占用");
+    }
+
+    // 查询用户是否已绑定 alias
+    const user = await UserModel.findOne({ usernumber }, "alias");
+    if (user.alias) {
+      return fail(ctx, "您已绑定个性域名");
+    }
+
+    // 设置
+    user.alias = alias;
+    await user.save();
+    suc(ctx, "设置成功");
   }
 }
 
