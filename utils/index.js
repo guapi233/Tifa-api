@@ -117,6 +117,30 @@ const encrptPassword = (password) => {
   return bcrypt.hashSync(password, 5);
 };
 
+/**
+ * 请求失败
+ * @param {*} ctx 请求上下文
+ * @param {*} msg 失败信息
+ */
+const fail = (ctx, msg) => {
+  return (ctx.body = {
+    isOk: 0,
+    data: msg,
+  });
+};
+
+/**
+ * 请求成功
+ * @param {*} ctx 请求上下文
+ * @param {*} data 附着数据
+ */
+const suc = (ctx, data) => {
+  return (ctx.body = {
+    isOk: 1,
+    data,
+  });
+};
+
 module.exports = {
   checkCaptcha,
   getUuid,
@@ -128,4 +152,6 @@ module.exports = {
   isEmail,
   comparePassword,
   encrptPassword,
+  fail,
+  suc,
 };
