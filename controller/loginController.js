@@ -29,7 +29,10 @@ class LoginController {
     }
 
     // 2. 校验账号密码
-    result = await UserModel.findOne({ usernumber, status: 1 });
+    result = await UserModel.findOne({
+      $where: `this.usernumber === "${usernumber}" || this.phone === "${usernumber}" || this.email === "${usernumber}"`,
+      status: 1,
+    });
     const userInfo = result ? result.toObject() : null;
 
     if (!result || !bcrypt.compareSync(password, result.password)) {
