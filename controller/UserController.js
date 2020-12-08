@@ -317,7 +317,7 @@ class UserController {
     }
 
     // 2. 判断邮箱是否存在
-    const user = UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email });
     if (user) {
       return (ctx.body = {
         isOk: 0,
