@@ -673,8 +673,7 @@ class PublicController {
 
     // 1. 查找用户信息
     const user = await UserModel.findOne({ usernumber });
-
-    if (!user || !user.email) {
+    if (!user || (!user.email && !email)) {
       return (ctx.body = {
         isOk: 0,
         data: "该用户不存在或者未绑定邮箱",
