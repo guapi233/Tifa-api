@@ -215,7 +215,9 @@ class PublicController {
     // 2. 查找 & 过滤用户信息
     const filterList = ["password", "_id"];
 
-    let userInfo = await UserModel.findOne({ usernumber });
+    let userInfo = await UserModel.findOne({
+      $where: `this.alias === "${usernumber}" || this.usernumber === "${usernumber}"`,
+    });
     if (!userInfo) {
       ctx.body = {
         isOk: 0,
