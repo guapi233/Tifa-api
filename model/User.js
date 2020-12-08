@@ -85,6 +85,7 @@ const UserSchema = new Schema({
     type: Number,
     default: 1,
   },
+  alias: String,
 });
 
 const UserModel = mongoose.model("users", UserSchema);
