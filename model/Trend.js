@@ -69,7 +69,7 @@ const getTrendList = async (authorId, skip = 0, limit = 20) => {
     },
     status: 1,
   })
-    .sort(skip * limit)
+    .skip(skip * limit)
     .limit(limit)
     .sort({ created: -1 });
 
