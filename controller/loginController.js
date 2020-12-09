@@ -44,9 +44,13 @@ class LoginController {
     }
 
     // 3. 根据结构创建token 并返回结果
-    let token = jsonwebtoken.sign({ usernumber }, config.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    let token = jsonwebtoken.sign(
+      { usernumber: result.usernumber },
+      config.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
 
     // 4. 过滤用户信息
     const filterList = ["password"];
