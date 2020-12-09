@@ -1,5 +1,6 @@
 const mongoose = require("../utils/db");
 const { getUuid } = require("../utils/index");
+const { newTrend, delTrend } = require("./Trend");
 
 const Schema = mongoose.Schema;
 
@@ -39,6 +40,14 @@ const newLike = async (likeObj) => {
   if (!res) {
     return false;
   }
+
+  // 更新动态
+  await newTrend({
+    type: 1,
+    detailId: newer.likeId,
+    authorId: newer.authorId,
+  });
+
   return newer.toObject();
 };
 
@@ -48,11 +57,15 @@ const newLike = async (likeObj) => {
  * @param {String} authorId 点赞用户Id
  */
 const delLike = async (targetId, authorId) => {
-  let res = await LikeModel.deleteOne({ targetId, authorId });
+  let res = await LikeModel.findOne({ targetId, authorId });
 
   if (!res) {
     return false;
   } else {
+    // 关闭对应状态
+    delTrend(res.likeId);
+    await LikeModel.deleteOne({ likeId: res.likeId });
+
     return true;
   }
 };
