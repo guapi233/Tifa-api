@@ -726,12 +726,12 @@ class PublicController {
   // 用户动态（传authorId表示单个用户的动态，直接从token拿代表获取关注的人动态）
   async getTrendList(ctx) {
     const { authorId } = ctx.query;
-    const self = getJwtPaload(ctx.header["authorization"]);
+    const { usernumber: self } = getJwtPaload(ctx.header["authorization"]);
     if (!authorId && !self) return fail(ctx, "加载动态失败");
     // 目标用户
     if (authorId) {
       // 处理单目标用户的动态
-      const res = await handleTrendList(authorId);
+      const res = await handleTrendList(authorId, 0, 20, self);
 
       ctx.body = {
         isOk: 1,
@@ -749,7 +749,7 @@ const trendTypeList = [
   [CommentModel, "commentId", "authorId"],
   [FollowModel, "followId", "authorId"],
 ];
-async function handleTrendList(authorId, skip = 0, limit = 20) {
+async function handleTrendList(authorId, skip = 0, limit = 20, self) {
   const trendList = await getTrendList(authorId, skip, limit);
 
   for (let i = 0; i < trendList.length; i++) {
@@ -773,23 +773,32 @@ async function handleTrendList(authorId, skip = 0, limit = 20) {
     //     });
     // }
 
+    // 动态详情
     trend.data = await oper[0].findOne(
       { [oper[1]]: trend.detailId },
       "-content"
     );
 
     trend.data = trend.data.toObject();
+    // 发动态人的信息
     trend.data.authorInfo = await UserModel.findOne(
       { usernumber: trend.data[oper[2]] },
       "usernumber name pic"
     );
 
+    // 动态涉及到的目标用户信息
     const targetId = trend.data.targetAuthor || trend.data.targetId;
     if (targetId) {
       trend.data.targetInfo = await UserModel.findOne(
         { usernumber: targetId },
         "usernumber name pic"
       );
+      trend.data.targetInfo = trend.data.targetInfo.toObject();
+
+      // 是否关注了该用户
+      if (self) {
+        trend.data.targetInfo.isFollowed = await isFollowed(targetId, self);
+      }
     }
   }
   return trendList;
