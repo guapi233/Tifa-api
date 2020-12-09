@@ -67,6 +67,7 @@ const getTrendList = async (authorId, skip = 0, limit = 20) => {
     authorId: {
       $in: authorId,
     },
+    status: 1,
   })
     .sort(skip * limit)
     .limit(limit)
