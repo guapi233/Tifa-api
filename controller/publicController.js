@@ -782,14 +782,21 @@ async function handleTrendList(authorId, skip = 0, limit = 20, self) {
     // 如果是评论或点赞，需要查找操作的目标内容
     if ([1, 2].includes(type)) {
       const targets = [
-          [ArticleModel, "articleId", ""],
-          [CommentModel, "commentId"],
+          [ArticleModel, "articleId", "author", ""],
+          [CommentModel, "commentId", "authorId"],
         ],
         Model = targets[trend.data.type];
 
       trend.data.oper = await Model[0].findOne(
         { [Model[1]]: trend.data.targetId },
-        Model[2]
+        Model[3]
+      );
+      trend.data.oper = trend.data.oper.toObject();
+
+      // 操作内容的作者（比如点赞的文章的作者）
+      trend.data.oper.authorInfo = await UserModel.findOne(
+        { usernumber: trend.data.oper[Model[2]] },
+        "usernumber pic name"
       );
     }
 
