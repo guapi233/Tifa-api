@@ -744,17 +744,18 @@ class PublicController {
 module.exports = new PublicController();
 
 const trendTypeList = [
-  [ArticleModel, "articleId", "author"],
-  [LikeModel, "likeId", "authorId"],
-  [CommentModel, "commentId", "authorId"],
-  [FollowModel, "followId", "authorId"],
+  [ArticleModel, "articleId", "author", "-content"],
+  [LikeModel, "likeId", "authorId", ""],
+  [CommentModel, "commentId", "authorId", ""],
+  [FollowModel, "followId", "authorId", ""],
 ];
 async function handleTrendList(authorId, skip = 0, limit = 20, self) {
   const trendList = await getTrendList(authorId, skip, limit);
 
   for (let i = 0; i < trendList.length; i++) {
     const trend = (trendList[i] = trendList[i].toObject());
-    const oper = trendTypeList[trend.type];
+    const type = trend.type;
+    const oper = trendTypeList[type];
 
     // 放弃使用聚合管道，改用更强大的populate
     // trend.data = await oper[0].aggregate([{ $match: { [oper[1]]: trend.detailId } }, { $lookup: {
@@ -774,12 +775,24 @@ async function handleTrendList(authorId, skip = 0, limit = 20, self) {
     // }
 
     // 动态详情
-    trend.data = await oper[0].findOne(
-      { [oper[1]]: trend.detailId },
-      "-content"
-    );
+    trend.data = await oper[0].findOne({ [oper[1]]: trend.detailId }, oper[3]);
 
     trend.data = trend.data.toObject();
+
+    // 如果是评论或点赞，需要查找操作的目标内容
+    if ([1, 2].includes(type)) {
+      const targets = [
+          [ArticleModel, "articleId"],
+          [CommentModel, "commentId"],
+        ],
+        Model = targets[trend.data.type];
+
+      trend.data.oper = await Model[0].findOne(
+        { [Model[1]]: trend.data.targetId },
+        "-content"
+      );
+    }
+
     // 发动态人的信息
     trend.data.authorInfo = await UserModel.findOne(
       { usernumber: trend.data[oper[2]] },
