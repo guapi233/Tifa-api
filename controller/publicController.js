@@ -1,21 +1,30 @@
 const svgCaptcha = require("svg-captcha");
 const { setRedisVal } = require("../utils/redis");
-const { shuffle, getJwtPaload, getUuid, isEmail } = require("../utils/index");
+const {
+  shuffle,
+  getJwtPaload,
+  getUuid,
+  isEmail,
+  fail,
+  suc,
+} = require("../utils/index");
 const config = require("../config/index");
 const { userIsExist, UserModel } = require("../model/User");
 const { ArticleModel } = require("../model/Article");
 const { CommentModel } = require("../model/Comment");
-const { getLikes, isLiked } = require("../model/Like");
-const { isBlackListed, getBlacklistedList } = require("../model/BlackListed");
-const { isCollected, getCollections } = require("../model/Collection");
-const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
+const { LikeModel, getLikes, isLiked } = require("../model/Like");
 const {
   getFollowList,
   getFollowedList,
   isFollowed,
+  FollowModel,
 } = require("../model/Follow");
+const { isBlackListed, getBlacklistedList } = require("../model/BlackListed");
+const { isCollected, getCollections } = require("../model/Collection");
+const { getTrendList } = require("../model/Trend");
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 const { sendMailAsVerifyCode, sendMailAsLink } = require("../utils/mailer");
 const { CAPTCHA_LIFE, BASE_URL } = require("../config");
 
@@ -235,7 +244,7 @@ class PublicController {
     // 3. 查询 是否关注此用户 & 第一人称用户有没有屏蔽该用户
     if (usernumber !== self) {
       const followed = await isFollowed(usernumber, self);
-      userInfo.isFollowed = Number(followed);
+      userInfo.isFollowed = followed ? 1 : 0;
 
       const blacklisted = await isBlackListed(usernumber, self, false);
       userInfo.blacklisted = Boolean(blacklisted);
@@ -471,16 +480,12 @@ class PublicController {
         item.author.articleCount = await ArticleModel.find({
           author: item.author.usernumber,
         }).countDocuments();
-      }
-    }
 
-    // 判断当前查看这些信息的用户是否关注这些用户
-    if (usernumber) {
-      for (let i = 0; i < res.length; i++) {
-        let item = res[i];
-
-        let followed = await isFollowed(item.targetId, usernumber);
-        item.isFollowed = Number(followed);
+        // 判断当前查看这些信息的用户是否关注这些用户
+        if (usernumber) {
+          let followed = await isFollowed(item.targetId, usernumber);
+          item.author.isFollowed = Number(followed);
+        }
       }
     }
 
@@ -717,6 +722,75 @@ class PublicController {
       data: "邮件已发送",
     };
   }
+
+  // 用户动态（传authorId表示单个用户的动态，直接从token拿代表获取关注的人动态）
+  async getTrendList(ctx) {
+    const { authorId } = ctx.query;
+    const self = getJwtPaload(ctx.header["authorization"]);
+    if (!authorId && !self) return fail(ctx, "加载动态失败");
+    // 目标用户
+    if (authorId) {
+      // 处理单目标用户的动态
+      const res = await handleTrendList(authorId);
+
+      ctx.body = {
+        isOk: 1,
+        data: res,
+      };
+    }
+  }
 }
 
 module.exports = new PublicController();
+
+const trendTypeList = [
+  [ArticleModel, "articleId", "author"],
+  [LikeModel, "likeId", "authorId"],
+  [CommentModel, "commentId", "authorId"],
+  [FollowModel, "followId", "authorId"],
+];
+async function handleTrendList(authorId, skip = 0, limit = 20) {
+  const trendList = await getTrendList(authorId, skip, limit);
+
+  for (let i = 0; i < trendList.length; i++) {
+    const trend = (trendList[i] = trendList[i].toObject());
+    const oper = trendTypeList[trend.type];
+
+    // 放弃使用聚合管道，改用更强大的populate
+    // trend.data = await oper[0].aggregate([{ $match: { [oper[1]]: trend.detailId } }, { $lookup: {
+    //   from: "users",
+    //   localField: oper[2],
+    //   foreignField: "usernumber",
+    //   as: "author"
+    // } }]);
+
+    //   trend.data = await oper[0]
+    //     .findOne({ [oper[1]]: trend.detailId })
+    //     .populate({
+    //       path: "userInfo",
+    //       select: "name pic usernumber",
+    //       match: { [oper[2]]:  } // 如何获取findOne查出来的数据？
+    //     });
+    // }
+
+    trend.data = await oper[0].findOne(
+      { [oper[1]]: trend.detailId },
+      "-content"
+    );
+
+    trend.data = trend.data.toObject();
+    trend.data.authorInfo = await UserModel.findOne(
+      { usernumber: trend.data[oper[2]] },
+      "usernumber name pic"
+    );
+
+    const targetId = trend.data.targetAuthor || trend.data.targetId;
+    if (targetId) {
+      trend.data.targetInfo = await UserModel.findOne(
+        { usernumber: targetId },
+        "usernumber name pic"
+      );
+    }
+  }
+  return trendList;
+}
