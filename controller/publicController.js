@@ -791,9 +791,13 @@ async function handleTrendList(authorId, skip = 0, limit = 20, self) {
     if (targetId) {
       trend.data.targetInfo = await UserModel.findOne(
         { usernumber: targetId },
-        "usernumber name pic"
+        "usernumber name pic followed follow"
       );
       trend.data.targetInfo = trend.data.targetInfo.toObject();
+      trend.data.targetInfo.articleCount = await ArticleModel.find({
+        author: targetId,
+        status: 1,
+      }).countDocuments();
 
       // 是否关注了该用户
       if (self) {
