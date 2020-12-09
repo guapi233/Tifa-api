@@ -1,6 +1,7 @@
 const mongoose = require("../utils/db");
 const { getUuid } = require("../utils/index");
 const { UserModel } = require("./User");
+const { newTrend, delTrend } = require("./Trend");
 
 const Schema = mongoose.Schema;
 
@@ -35,16 +36,30 @@ const newFollow = async (FollowObj) => {
   if (!res) {
     return false;
   }
+
+  // 添加动态
+  await newTrend({
+    type: 3,
+    detailId: newer.followId,
+    authorId: newer.authorId,
+  });
+
   return newer.toObject();
 };
 
 // 删除一条关注字段（取消关注）
 const delFollow = async (targetId, authorId) => {
+  let follow = await isFollowed(targetId, authorId);
+  if (!follow) return true;
+
   let res = await FollowModel.deleteOne({ targetId, authorId });
 
   if (!res) {
     return false;
   }
+
+  // 关闭动态
+  delTrend(follow.followId);
   return true;
 };
 
@@ -52,10 +67,7 @@ const delFollow = async (targetId, authorId) => {
 const isFollowed = async (targetId, authorId) => {
   let res = await FollowModel.findOne({ targetId, authorId });
 
-  if (!res) {
-    return false;
-  }
-  return true;
+  return res;
 };
 
 // 获取 我关注的人列表
@@ -128,6 +140,7 @@ const cancelFollow = async (targetId, usernumber, mutual = false) => {
     [targetId, usernumber] = [usernumber, targetId];
 
     const followed = await isFollowed(targetId, usernumber);
+
     if (followed) {
       await delFollow(targetId, usernumber);
       // 关注数量--，目标用户粉丝数量--
