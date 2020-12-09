@@ -8,12 +8,7 @@ const {
   fail,
   suc,
 } = require("../utils/index");
-const {
-  isFollowed,
-  delFollow,
-  newFollow,
-  cancelFollow,
-} = require("../model/Follow");
+const { isFollowed, newFollow, cancelFollow } = require("../model/Follow");
 const {
   newBlacklisted,
   isBlackListed,
@@ -141,24 +136,8 @@ class UserController {
     // 2. 判断是否已经关注
     const followed = await isFollowed(targetId, usernumber);
     if (followed) {
-      await delFollow(targetId, usernumber);
-      // 关注数量--，目标用户粉丝数量--
-      await UserModel.updateOne(
-        { usernumber },
-        {
-          $inc: {
-            follow: -1,
-          },
-        }
-      );
-      await UserModel.updateOne(
-        { usernumber: targetId },
-        {
-          $inc: {
-            followed: -1,
-          },
-        }
-      );
+      await cancelFollow(targetId, usernumber);
+
       ctx.body = {
         isOk: 1,
         data: "取消关注",

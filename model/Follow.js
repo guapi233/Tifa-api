@@ -114,8 +114,9 @@ const getUnReaders = async (targetId, count) => {
  * @param {*} mutual 是否互相取关（默认false）
  */
 const cancelFollow = async (targetId, usernumber, mutual = false) => {
-  const followed = await isFollowed(targetId, usernumber);
-  if (followed) {
+  const follow = await FollowModel.findOne({ targetId, authorId: usernumber });
+
+  if (follow) {
     await delFollow(targetId, usernumber);
     // 关注数量--，目标用户粉丝数量--
     await UserModel.updateOne(
@@ -134,14 +135,19 @@ const cancelFollow = async (targetId, usernumber, mutual = false) => {
         },
       }
     );
+    // 关闭动态
+    delTrend(follow.followId);
   }
 
   if (mutual) {
     [targetId, usernumber] = [usernumber, targetId];
 
-    const followed = await isFollowed(targetId, usernumber);
+    const follow = await FollowModel.findOne({
+      targetId,
+      authorId: usernumber,
+    });
 
-    if (followed) {
+    if (follow) {
       await delFollow(targetId, usernumber);
       // 关注数量--，目标用户粉丝数量--
       await UserModel.updateOne(
@@ -160,6 +166,8 @@ const cancelFollow = async (targetId, usernumber, mutual = false) => {
           },
         }
       );
+      // 关闭动态
+      delTrend(follow.followId);
     }
   }
 };
@@ -167,7 +175,6 @@ const cancelFollow = async (targetId, usernumber, mutual = false) => {
 module.exports = {
   FollowModel,
   newFollow,
-  delFollow,
   isFollowed,
   getFollowList,
   getFollowedList,
