@@ -1,6 +1,7 @@
 const mongoose = require("../utils/db");
 const { getUuid } = require("../utils/index.js");
 const { UserModel } = require("./User");
+const { newTrend, delTrend } = require("./Trend");
 
 const Schema = mongoose.Schema;
 
@@ -71,6 +72,13 @@ const newComment = async (commentObj) => {
   newer.children = [];
 
   // 当前文章/回复的评论数量 + 1 （由前端来做）
+
+  // 添加动态
+  await newTrend({
+    type: 2,
+    detailId: newer.commentId,
+    authorId: newer.authorId,
+  });
 
   return newer;
 };
