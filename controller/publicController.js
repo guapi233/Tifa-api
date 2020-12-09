@@ -782,14 +782,14 @@ async function handleTrendList(authorId, skip = 0, limit = 20, self) {
     // 如果是评论或点赞，需要查找操作的目标内容
     if ([1, 2].includes(type)) {
       const targets = [
-          [ArticleModel, "articleId"],
+          [ArticleModel, "articleId", ""],
           [CommentModel, "commentId"],
         ],
         Model = targets[trend.data.type];
 
       trend.data.oper = await Model[0].findOne(
         { [Model[1]]: trend.data.targetId },
-        "-content"
+        Model[2]
       );
     }
 
