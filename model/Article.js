@@ -1,5 +1,6 @@
 const mongoose = require("../utils/db");
 const { getUuid } = require("../utils/index");
+const { newTrend, delTrend } = require("./Trend");
 
 const Schema = mongoose.Schema;
 
@@ -68,6 +69,14 @@ const newArticle = async (articleObj) => {
   if (!res) {
     return false;
   }
+
+  // 添加动态
+  await newTrend({
+    type: 0,
+    detailId: newer.articleId,
+    authorId: newer.author,
+  });
+
   return newer.toObject();
 };
 
@@ -82,6 +91,10 @@ const delArticle = async (articleId, author) => {
   if (!res.n) {
     return false;
   }
+
+  // 关闭动态
+  delTrend(articleId);
+
   return true;
 };
 
