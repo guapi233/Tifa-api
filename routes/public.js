@@ -42,4 +42,7 @@ router.post("/getBiEmoji", publicController.getBiEmoji);
 // 发送邮件
 router.get("/sendMail", publicController.sendMail);
 
+// 获取动态
+router.get("/getTrendList", publicController.getTrendList);
+
 module.exports = router;
