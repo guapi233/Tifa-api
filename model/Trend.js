@@ -57,7 +57,7 @@ const delTrend = async (detailId) => {
  * @param {Number} skip 跳过的条目
  * @param {Number} limit 数量
  */
-const getTrends = async (authorId, skip = 0, limit = 20) => {
+const getTrendList = async (authorId, skip = 0, limit = 20) => {
   skip = Number(skip) || 0;
   limit = Number(limit) || 20;
 
@@ -79,5 +79,5 @@ module.exports = {
   TrendModel,
   newTrend,
   delTrend,
-  getTrends,
+  getTrendList,
 };
