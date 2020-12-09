@@ -49,7 +49,7 @@ const newFollow = async (FollowObj) => {
 
 // 删除一条关注字段（取消关注）
 const delFollow = async (targetId, authorId) => {
-  let follow = await isFollowed(targetId, authorId);
+  let follow = await FollowModel.findOne({ targetId, authorId });
   if (!follow) return true;
 
   let res = await FollowModel.deleteOne({ targetId, authorId });
@@ -67,7 +67,7 @@ const delFollow = async (targetId, authorId) => {
 const isFollowed = async (targetId, authorId) => {
   let res = await FollowModel.findOne({ targetId, authorId });
 
-  return res;
+  return res ? true : false;
 };
 
 // 获取 我关注的人列表
