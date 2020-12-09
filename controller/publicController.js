@@ -725,13 +725,13 @@ class PublicController {
 
   // 用户动态（传authorId表示单个用户的动态，直接从token拿代表获取关注的人动态）
   async getTrendList(ctx) {
-    const { authorId } = ctx.query;
+    const { authorId, skip, limit } = ctx.query;
     const { usernumber: self } = getJwtPaload(ctx.header["authorization"]);
     if (!authorId && !self) return fail(ctx, "加载动态失败");
     // 目标用户
     if (authorId) {
       // 处理单目标用户的动态
-      const res = await handleTrendList(authorId, 0, 20, self);
+      const res = await handleTrendList(authorId, skip, limit, self);
 
       ctx.body = {
         isOk: 1,
