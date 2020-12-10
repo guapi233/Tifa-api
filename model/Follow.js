@@ -72,6 +72,11 @@ const isFollowed = async (targetId, authorId) => {
 
 // 获取 我关注的人列表
 const getFollowList = async (authorId, limit, skip) => {
+  if (arguments.length === 1) {
+    let res = await FollowModel.find({ authorId });
+    return res;
+  }
+
   let res = await FollowModel.find({ authorId })
     .limit(limit)
     .skip(skip * limit)
