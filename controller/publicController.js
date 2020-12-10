@@ -723,21 +723,29 @@ class PublicController {
     };
   }
 
-  // 用户动态（传authorId表示单个用户的动态，直接从token拿代表获取关注的人动态）
+  // 用户动态
   async getTrendList(ctx) {
     const { authorId, skip, limit } = ctx.query;
     const { usernumber: self } = getJwtPaload(ctx.header["authorization"]);
     if (!authorId && !self) return fail(ctx, "加载动态失败");
-    // 目标用户
+    // 目标用户（传authorId表示单个用户的动态，直接从token拿代表获取关注的人动态）
+    let data = [];
     if (authorId) {
       // 处理单目标用户的动态
-      const res = await handleTrendList(authorId, skip, limit, self);
-
-      ctx.body = {
-        isOk: 1,
-        data: res,
-      };
+      data = await handleTrendList(authorId, skip, limit, self);
+    } else if (self) {
+      // 处理用户关注列表的动态
+      let followList = await getFollowList(self);
+      followList = followList.map((follower) => {
+        return follower.targetId;
+      });
+      data = await handleTrendList(followList, skip, limit, self);
     }
+
+    ctx.body = {
+      isOk: 1,
+      data,
+    };
   }
 }
 
