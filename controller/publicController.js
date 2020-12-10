@@ -747,6 +747,54 @@ class PublicController {
       data,
     };
   }
+
+  // 检索
+  async search(ctx) {
+    const { keyword, type } = ctx.query;
+    let keywords = keyword.split(/\s+/);
+    let data = {};
+
+    // 转换关键字为正则（不会字符串查找，只能正则匹配）
+    keywords = keywords.map((keyword) => {
+      return new RegExp(keyword, "i");
+    });
+
+    switch (type) {
+      case "count":
+        // 查询数量
+        await queryCount(data, keywords);
+        break;
+      case "article":
+        // 查询文章
+        data = await queryArticle(keywords);
+        break;
+      case "user":
+        // 查询用户
+        data = await queryUser(keywords);
+        break;
+    }
+
+    // 拓展信息
+    if (type !== "count") {
+      for (let i = 0; i < data.length; i++) {
+        const item = (data[i] = data[i].toObject());
+
+        if (type === "article") {
+          item.authorInfo = await UserModel.findOne(
+            { usernumber: item.author },
+            "name pic usernumber"
+          );
+        } else {
+          const token = ctx.header["authorization"];
+          item.isFollowed = token
+            ? await isFollowed(item.usernumber, getJwtPaload(token).usernumber)
+            : false;
+        }
+      }
+    }
+
+    suc(ctx, data);
+  }
 }
 
 module.exports = new PublicController();
@@ -834,4 +882,31 @@ async function handleTrendList(authorId, skip = 0, limit = 20, self) {
     }
   }
   return trendList;
+}
+
+function queryUser(keywords, _s) {
+  if (_s) {
+    return `UserModel.find({ name: { $in: keywords } }, "-password")`;
+  }
+
+  return UserModel.find({ name: { $in: keywords } }, "-password");
+}
+function queryArticle(keywords, _s) {
+  if (_s) {
+    return `ArticleModel.find(
+      { $or: [{ title: { $in: keywords } }, { content: { $in: keywords } }] },
+      "-content"
+    )`;
+  }
+
+  return ArticleModel.find(
+    { $or: [{ title: { $in: keywords } }, { content: { $in: keywords } }] },
+    "-content"
+  );
+}
+async function queryCount(data, keywords) {
+  data.users = await eval(queryUser(keywords, true) + ".countDocuments()");
+  data.articles = await eval(
+    queryArticle(keywords, true) + ".countDocuments()"
+  );
 }

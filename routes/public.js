@@ -45,4 +45,7 @@ router.get("/sendMail", publicController.sendMail);
 // 获取动态
 router.get("/getTrendList", publicController.getTrendList);
 
+// 检索
+router.get("/search", publicController.search);
+
 module.exports = router;
