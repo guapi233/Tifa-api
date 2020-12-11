@@ -52,7 +52,22 @@ const newSearch = async (searchObj) => {
   return search.toObject();
 };
 
+/**
+ * 获取类似的检索记录
+ * @param {*} content 关键字
+ */
+const getSearch = async (content) => {
+  content = new RegExp(`^${content}`);
+
+  const res = await SearchModel.find({ content }, "-authorId")
+    .sort({ count: -1 })
+    .limit(10);
+
+  return res;
+};
+
 module.exports = {
   SearchModel,
   newSearch,
+  getSearch,
 };
