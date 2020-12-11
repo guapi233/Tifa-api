@@ -48,4 +48,7 @@ router.get("/getTrendList", publicController.getTrendList);
 // 检索
 router.get("/search", publicController.search);
 
+// 添加检索记录
+router.get("/addSearch", publicController.addSearch);
+
 module.exports = router;
