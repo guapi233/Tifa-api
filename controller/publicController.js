@@ -20,7 +20,7 @@ const {
   FollowModel,
 } = require("../model/Follow");
 const { isBlackListed, getBlacklistedList } = require("../model/BlackListed");
-const { newSearch } = require("../model/Search");
+const { newSearch, getSearch: _getSearch } = require("../model/Search");
 const { isCollected, getCollections } = require("../model/Collection");
 const { getTrendList } = require("../model/Trend");
 const axios = require("axios");
@@ -802,7 +802,6 @@ class PublicController {
     const { keyword: content } = ctx.query;
     const token = ctx.header["authorization"];
     const authorId = token ? getJwtPaload(token).usernumber : "*";
-    console.log(getJwtPaload(token).usernumber, token);
 
     if (content) {
       await newSearch({
@@ -812,6 +811,15 @@ class PublicController {
     }
 
     suc(ctx, "rec");
+  }
+
+  // 获取检索记录
+  async getSearch(ctx) {
+    const { keyword } = ctx.query;
+
+    const res = keyword ? await _getSearch(keyword) : [];
+
+    suc(ctx, res);
   }
 }
 

@@ -51,4 +51,7 @@ router.get("/search", publicController.search);
 // 添加检索记录
 router.get("/addSearch", publicController.addSearch);
 
+// 获取检索记录
+router.get("/getSearch", publicController.getSearch);
+
 module.exports = router;
