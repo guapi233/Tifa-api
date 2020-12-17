@@ -520,16 +520,12 @@ class PublicController {
         item.author.articleCount = await ArticleModel.find({
           author: item.author.usernumber,
         }).countDocuments();
-      }
-    }
 
-    // 判断当前查看这些信息的用户是否关注这些用户
-    if (usernumber) {
-      for (let i = 0; i < res.length; i++) {
-        let item = res[i];
-
-        let followed = await isFollowed(item.authorId, usernumber);
-        item.isFollowed = Number(followed);
+        // 判断当前查看这些信息的用户是否关注这些用户
+        if (usernumber) {
+          let followed = await isFollowed(item.authorId, usernumber);
+          item.author.isFollowed = Number(followed);
+        }
       }
     }
 
