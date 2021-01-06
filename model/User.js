@@ -28,17 +28,11 @@ const UserSchema = new Schema({
     type: String,
     match: /^1[3-9](\d{9})$/,
     default: "",
-    index: {
-      unique: true,
-    },
   },
   email: {
     type: String,
     match: /^([a-zA-Z]|[0-9])(\w|-)+@[a-zA-Z0-9]+.([a-zA-Z]{2,4})$/,
     default: "",
-    index: {
-      unique: true,
-    },
   },
   status: {
     type: Number,
