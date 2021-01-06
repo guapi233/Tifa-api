@@ -1194,7 +1194,9 @@ class ContentController {
       }).sort({
         created: -1,
       });
-      !temp.lastMsg.status && (temp.lastMsg.content = "对方撤回了一条消息");
+      temp.lastMsg &&
+        !temp.lastMsg.status &&
+        (temp.lastMsg.content = "对方撤回了一条消息");
     }
 
     ctx.body = {
