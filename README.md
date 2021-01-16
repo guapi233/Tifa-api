@@ -19,6 +19,9 @@
 ## 项目运行
 
 ```shell
+Redis：v3.2.1
+MongoDB：3.4.23
+
 git clone https://github.com/guapi233/Tifa-api.git
 
 cd Tifa-api
