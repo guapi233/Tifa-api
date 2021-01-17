@@ -529,7 +529,9 @@ class ContentController {
     // 2. 新建文章
     let res = await newArticle({
       title,
-      banner,
+      banner:
+        banner ||
+        "https://cdn.sspai.com/article/af5262aa-3a1c-db43-8e87-5a8c476626d9.png?imageMogr2/auto-orient/quality/95/thumbnail/!1420x708r/gravity/Center/crop/1420x708/interlace/1",
       tags,
       content,
       author: ctx.usernumber,
